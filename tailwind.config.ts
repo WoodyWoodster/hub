@@ -1,62 +1,222 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
 export default {
-    darkMode: ["class"],
-    content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
-  	extend: {
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
-  	}
-  },
-  plugins: [require("tailwindcss-animate")],
+	darkMode: ['class'],
+	content: [
+		'./src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+		'./src/components/**/*.{js,ts,jsx,tsx,mdx}',
+		'./src/app/**/*.{js,ts,jsx,tsx,mdx}',
+	],
+	theme: {
+		extend: {
+			fontFamily: {
+				display: ['Tiempos Headline, serif'],
+				sans: ['Mark Pro, sans-serif'],
+			},
+			colors: {
+				holly: {
+					'100': 'var(--holly-100)',
+					'200': 'var(--holly-200)',
+					'300': 'var(--holly-300)',
+					'400': 'var(--holly-400)',
+					'500': 'var(--holly-500)',
+					'600': 'var(--holly-600)',
+					'700': 'var(--holly-700)',
+					'800': 'var(--holly-800)',
+					'900': 'var(--holly-900)',
+				},
+				seafoam: {
+					'100': 'var(--seafoam-100)',
+					'200': 'var(--seafoam-200)',
+					'300': 'var(--seafoam-300)',
+					'400': 'var(--seafoam-400)',
+					'500': 'var(--seafoam-500)',
+					'600': 'var(--seafoam-600)',
+					'700': 'var(--seafoam-700)',
+					'800': 'var(--seafoam-800)',
+					'900': 'var(--seafoam-900)',
+				},
+				smoke: {
+					'100': 'var(--smoke-100)',
+					'200': 'var(--smoke-200)',
+					'300': 'var(--smoke-300)',
+					'400': 'var(--smoke-400)',
+					'500': 'var(--smoke-500)',
+					'600': 'var(--smoke-600)',
+					'700': 'var(--smoke-700)',
+					'800': 'var(--smoke-800)',
+					'900': 'var(--smoke-900)',
+				},
+				onyx: {
+					'100': 'var(--onyx-100)',
+					'200': 'var(--onyx-200)',
+					'300': 'var(--onyx-300)',
+					'400': 'var(--onyx-400)',
+					'500': 'var(--onyx-500)',
+					'600': 'var(--onyx-600)',
+					'700': 'var(--onyx-700)',
+					'800': 'var(--onyx-800)',
+					'900': 'var(--onyx-900)',
+				},
+				sand: {
+					'100': 'var(--sand-100)',
+					'200': 'var(--sand-200)',
+					'300': 'var(--sand-300)',
+					'400': 'var(--sand-400)',
+					'500': 'var(--sand-500)',
+					'600': 'var(--sand-600)',
+					'700': 'var(--sand-700)',
+					'800': 'var(--sand-800)',
+					'900': 'var(--sand-900)',
+				},
+				sienna: {
+					'100': 'var(--sienna-100)',
+					'200': 'var(--sienna-200)',
+					'300': 'var(--sienna-300)',
+					'400': 'var(--sienna-400)',
+					'500': 'var(--sienna-500)',
+					'600': 'var(--sienna-600)',
+					'700': 'var(--sienna-700)',
+					'800': 'var(--sienna-800)',
+					'900': 'var(--sienna-900)',
+				},
+				lavender: {
+					'100': 'var(--lavender-100)',
+					'200': 'var(--lavender-200)',
+					'300': 'var(--lavender-300)',
+					'400': 'var(--lavender-400)',
+					'500': 'var(--lavender-500)',
+					'600': 'var(--lavender-600)',
+					'700': 'var(--lavender-700)',
+					'800': 'var(--lavender-800)',
+					'900': 'var(--lavender-900)',
+				},
+				orchid: {
+					'100': 'var(--orchid-100)',
+					'200': 'var(--orchid-200)',
+					'300': 'var(--orchid-300)',
+					'400': 'var(--orchid-400)',
+					'500': 'var(--orchid-500)',
+					'600': 'var(--orchid-600)',
+					'700': 'var(--orchid-700)',
+					'800': 'var(--orchid-800)',
+					'900': 'var(--orchid-900)',
+				},
+				sky: {
+					'100': 'var(--sky-100)',
+					'200': 'var(--sky-200)',
+					'300': 'var(--sky-300)',
+					'400': 'var(--sky-400)',
+					'500': 'var(--sky-500)',
+					'600': 'var(--sky-600)',
+					'700': 'var(--sky-700)',
+					'800': 'var(--sky-800)',
+					'900': 'var(--sky-900)',
+				},
+				green: {
+					'100': 'var(--green-100)',
+					'200': 'var(--green-200)',
+					'300': 'var(--green-300)',
+					'400': 'var(--green-400)',
+					'500': 'var(--green-500)',
+					'600': 'var(--green-600)',
+					'700': 'var(--green-700)',
+					'800': 'var(--green-800)',
+					'900': 'var(--green-900)',
+				},
+				red: {
+					'100': 'var(--red-100)',
+					'200': 'var(--red-200)',
+					'300': 'var(--red-300)',
+					'400': 'var(--red-400)',
+					'500': 'var(--red-500)',
+					'600': 'var(--red-600)',
+					'700': 'var(--red-700)',
+					'800': 'var(--red-800)',
+					'900': 'var(--red-900)',
+				},
+				orange: {
+					'100': 'var(--orange-100)',
+					'200': 'var(--orange-200)',
+					'300': 'var(--orange-300)',
+					'400': 'var(--orange-400)',
+					'500': 'var(--orange-500)',
+					'600': 'var(--orange-600)',
+					'700': 'var(--orange-700)',
+					'800': 'var(--orange-800)',
+					'900': 'var(--orange-900)',
+				},
+				blue: {
+					'100': 'var(--blue-100)',
+					'200': 'var(--blue-200)',
+					'300': 'var(--blue-300)',
+					'400': 'var(--blue-400)',
+					'500': 'var(--blue-500)',
+					'600': 'var(--blue-600)',
+					'700': 'var(--blue-700)',
+					'800': 'var(--blue-800)',
+					'900': 'var(--blue-900)',
+				},
+
+				background: 'hsl(var(--background))',
+				foreground: 'hsl(var(--foreground))',
+				card: {
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))',
+				},
+				popover: {
+					DEFAULT: 'hsl(var(--popover))',
+					foreground: 'hsl(var(--popover-foreground))',
+				},
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))',
+				},
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))',
+				},
+				muted: {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))',
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))',
+				},
+				destructive: {
+					DEFAULT: 'hsl(var(--destructive))',
+					foreground: 'hsl(var(--destructive-foreground))',
+				},
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				chart: {
+					'1': 'hsl(var(--chart-1))',
+					'2': 'hsl(var(--chart-2))',
+					'3': 'hsl(var(--chart-3))',
+					'4': 'hsl(var(--chart-4))',
+					'5': 'hsl(var(--chart-5))',
+				},
+				sidebar: {
+					DEFAULT: 'hsl(var(--sidebar-background))',
+					foreground: 'hsl(var(--sidebar-foreground))',
+					primary: 'hsl(var(--sidebar-primary))',
+					'primary-foreground':
+						'hsl(var(--sidebar-primary-foreground))',
+					accent: 'hsl(var(--sidebar-accent))',
+					'accent-foreground':
+						'hsl(var(--sidebar-accent-foreground))',
+					border: 'hsl(var(--sidebar-border))',
+					ring: 'hsl(var(--sidebar-ring))',
+				},
+			},
+			borderRadius: {
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)',
+			},
+		},
+	},
+	plugins: [require('tailwindcss-animate')],
 } satisfies Config;
