@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import Cognito from 'next-auth/providers/cognito';
 
 export const authConfig = {
   pages: {
@@ -17,5 +18,5 @@ export const authConfig = {
       return true;
     },
   },
-  providers: [], // Add providers with an empty array for now
+  providers: [],
 } satisfies NextAuthConfig;
