@@ -1,5 +1,4 @@
 import type { NextAuthConfig } from 'next-auth';
-import Cognito from 'next-auth/providers/cognito';
 
 export const authConfig = {
   pages: {
