@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-	font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
 	:root {
 		--holly-100: 162, 12%, 90%;
@@ -128,10 +124,10 @@ body {
 		--success-800: 162, 60%, 20%;
 		--success-900: 162, 80%, 12%;
 
-		--background: 0 0% 100%;
+		--background: var(--smoke-300);
 		--foreground: 240 10% 3.9%;
 		--card: 0 0% 100%;
-		--card-foreground: 240 10% 3.9%;
+		--card-foreground: var(--onyx-600);
 		--popover: 0 0% 100%;
 		--popover-foreground: 240 10% 3.9%;
 		--primary: 240 5.9% 10%;
@@ -153,13 +149,15 @@ body {
 		--chart-4: 43 74% 66%;
 		--chart-5: 27 87% 67%;
 		--radius: 0.5rem;
-		--sidebar-background: 0 0% 98%;
-		--sidebar-foreground: 240 5.3% 26.1%;
+		--sidebar-background: var(--smoke-100);
+		--sidebar-foreground: var(--onyx-700);
 		--sidebar-primary: 240 5.9% 10%;
 		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 240 4.8% 95.9%;
+		--sidebar-accent: var(--smoke-200);
 		--sidebar-accent-foreground: 240 5.9% 10%;
-		--sidebar-border: 220 13% 91%;
+		--sidebar-active: var(--seafoam-700);
+		--sidebar-active-foreground: 0 0% 100%;
+		--sidebar-border: var(--smoke-400);
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 	.dark {
@@ -210,8 +208,7 @@ body {
 @layer base {
 	@font-face {
 		font-family: 'Tiempos Headline';
-		src: url(../fonts/tiempos/tiempos-headline-web-light.woff2)
-			format('woff2');
+		src: url(../fonts/tiempos/tiempos-headline-web-light.woff2) format('woff2');
 		font-weight: 100;
 		font-style: normal;
 	}
@@ -228,8 +225,7 @@ body {
 	/* Medium */
 	@font-face {
 		font-family: 'Tiempos Headline';
-		src: url(../fonts/tiempos/tiempos-headline-web-medium.woff2)
-			format('woff2');
+		src: url(../fonts/tiempos/tiempos-headline-web-medium.woff2) format('woff2');
 		font-weight: 500;
 		font-style: normal;
 	}
@@ -246,8 +242,7 @@ body {
 	/* Bold */
 	@font-face {
 		font-family: 'Tiempos Headline';
-		src: url(../fonts/tiempos/tiempos-headline-web-bold.woff2)
-			format('woff2');
+		src: url(../fonts/tiempos/tiempos-headline-web-bold.woff2) format('woff2');
 		font-weight: 700;
 		font-style: normal;
 	}
@@ -255,8 +250,7 @@ body {
 	/* Black */
 	@font-face {
 		font-family: 'Tiempos Headline';
-		src: url(../fonts/tiempos/tiempos-headline-web-black.woff2)
-			format('woff2');
+		src: url(../fonts/tiempos/tiempos-headline-web-black.woff2) format('woff2');
 		font-weight: 900;
 		font-style: normal;
 	}
@@ -271,8 +265,7 @@ body {
 	}
 	@font-face {
 		font-family: 'Mark Pro';
-		src: url(../fonts/mark-pro/FFMarkWebProLightItalic.woff2)
-			format('woff2');
+		src: url(../fonts/mark-pro/FFMarkWebProLightItalic.woff2) format('woff2');
 		font-weight: 100;
 		font-style: italic;
 	}
@@ -300,8 +293,7 @@ body {
 	}
 	@font-face {
 		font-family: 'Mark Pro';
-		src: url(../fonts/mark-pro/FFMarkWebProMediumItalic.woff2)
-			format('woff2');
+		src: url(../fonts/mark-pro/FFMarkWebProMediumItalic.woff2) format('woff2');
 		font-weight: 500;
 		font-style: italic;
 	}

@@ -2,12 +2,15 @@ import {
 	BookOpen,
 	Bot,
 	Command,
-	Frame,
 	GalleryVerticalEnd,
+	LayoutDashboardIcon,
+	Library,
 	Map,
-	PieChart,
+	MessageCircleQuestion,
+	Settings,
 	Settings2,
 	SquareTerminal,
+	Users,
 } from 'lucide-react';
 
 export const navItems = {
@@ -33,65 +36,86 @@ export const navItems = {
 			plan: 'Free',
 		},
 	],
-	navMain: [
+	employee: [
 		{
-			title: 'Playground',
+			title: 'Dashboard',
 			url: '#',
 			icon: SquareTerminal,
 			isActive: true,
-			items: [
-				{
-					title: 'History',
-					url: '#',
-				},
-				{
-					title: 'Starred',
-					url: '#',
-				},
-				{
-					title: 'Settings',
-					url: '#',
-				},
-			],
 		},
 		{
-			title: 'Models',
+			title: 'Benefits',
 			url: '#',
 			icon: Bot,
-			items: [
-				{
-					title: 'Genesis',
-					url: '#',
-				},
-				{
-					title: 'Explorer',
-					url: '#',
-				},
-				{
-					title: 'Quantum',
-					url: '#',
-				},
-			],
 		},
 		{
-			title: 'Documentation',
+			title: 'Documents',
+			url: '#',
+			icon: BookOpen,
+		},
+	],
+	admin: [
+		{
+			title: 'Dashboard',
+			url: '#',
+			icon: LayoutDashboardIcon,
+			isActive: true,
+		},
+		{
+			title: 'People',
+			url: '#',
+			icon: Users,
+		},
+		{
+			title: 'Documents',
+			url: '#',
+			icon: BookOpen,
+		},
+		{
+			title: 'Settings',
+			url: '#',
+			icon: Settings,
+		},
+	],
+	tcHub: [
+		{
+			title: 'Users',
+			url: '#',
+			icon: SquareTerminal,
+			isActive: true,
+		},
+		{
+			title: 'Companies',
+			url: '#',
+			icon: Bot,
+		},
+		{
+			title: 'AutoPay',
 			url: '#',
 			icon: BookOpen,
 			items: [
 				{
-					title: 'Introduction',
+					title: 'Transfer',
 					url: '#',
 				},
 				{
-					title: 'Get Started',
+					title: 'Accounts',
 					url: '#',
 				},
 				{
-					title: 'Tutorials',
+					title: 'Registration Tracking',
 					url: '#',
 				},
 				{
-					title: 'Changelog',
+					title: 'Funding Events',
+					url: '#',
+				},
+				{
+					title: 'Funding Reports',
+					url: '#',
+				},
+				{
+					title: 'Issues',
 					url: '#',
 				},
 			],
@@ -120,21 +144,16 @@ export const navItems = {
 			],
 		},
 	],
-	projects: [
+	resources: [
 		{
-			name: 'Design Engineering',
+			name: 'Support',
 			url: '#',
-			icon: Frame,
+			icon: MessageCircleQuestion,
 		},
 		{
-			name: 'Sales & Marketing',
+			name: 'Resource Center',
 			url: '#',
-			icon: PieChart,
-		},
-		{
-			name: 'Travel',
-			url: '#',
-			icon: Map,
+			icon: Library,
 		},
 	],
 };
