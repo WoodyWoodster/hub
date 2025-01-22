@@ -75,27 +75,106 @@ export const employeeWidgets = {
 			},
 		],
 	},
-	transactionWidget: {
+	transactionsWidget: {
 		title: 'Recent Transactions',
 		transactions: [
 			{
+				id: 1,
 				date: '2025-01-01',
 				type: 'Medical Expense',
 				amount: '$275.00',
+				status: 'Rejected',
 			},
 			{
+				id: 2,
 				date: '2025-01-01',
 				type: 'AutoPay Premium',
 				amount: '$908.75',
+				status: 'Reimbursed',
+			},
+			{
+				id: 3,
+				date: '2025-01-01',
+				type: 'AutoPay Premium',
+				amount: '$908.75',
+				status: 'Pending',
+			},
+			{
+				id: 4,
+				date: '2025-01-01',
+				type: 'AutoPay Premium',
+				amount: '$908.75',
+				status: 'Pending',
+			},
+			{
+				id: 5,
+				date: '2025-01-01',
+				type: 'AutoPay Premium',
+				amount: '$908.75',
+				status: 'Pending',
+			},
+			{
+				id: 6,
+				date: '2025-01-01',
+				type: 'AutoPay Premium',
+				amount: '$908.75',
+				status: 'Pending',
+			},
+			{
+				id: 7,
+				date: '2025-01-01',
+				type: 'AutoPay Premium',
+				amount: '$908.75',
+				status: 'Pending',
 			},
 		],
 	},
 };
 
 export const companyWidgets = {
-	topWidgets: [
+	autopayWidget: [
 		{
-			title: 'Total Allowance',
+			title: 'AutoPay',
+			autopayColumns: {
+				upcomingFunding: {
+					title: 'Upcoming Funding',
+					amount: '$89,737.64',
+					updatedDate: '2025-02-28',
+				},
+				dispersement: {
+					title: 'Dispersement Account Balance',
+					amount: '$52,311.29',
+					updatedDate: '2025-02-28',
+				},
+				participation: {
+					title: 'AutoPay Participation',
+					percentage: '98%',
+					updatedDate: '2025-02-28',
+				},
+			},
 		},
 	],
+	updatesWidget: {
+		title: 'Recent Updates',
+		updates: [
+			{
+				id: 1,
+				employeeName: 'Miles O’Brien',
+				date: '2025-01-01',
+				status: 'Terminated',
+			},
+			{
+				id: 2,
+				employeeName: 'Benjamin Sisko',
+				date: '2025-01-01',
+				status: 'New Employee',
+			},
+			{
+				id: 3,
+				employeeName: 'Marla Laster',
+				date: '2025-01-01',
+				status: 'Shopping',
+			},
+		],
+	},
 };

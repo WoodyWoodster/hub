@@ -39,41 +39,41 @@ export const navItems = {
 	employee: [
 		{
 			title: 'Dashboard',
-			url: '#',
+			url: '/dashboard',
 			icon: SquareTerminal,
 			isActive: true,
 		},
 		{
 			title: 'Benefits',
-			url: '#',
+			url: '/benefits',
 			icon: Bot,
 		},
 		{
 			title: 'Documents',
-			url: '#',
+			url: '/documents',
 			icon: BookOpen,
 		},
 	],
 	admin: [
 		{
 			title: 'Dashboard',
-			url: '#',
+			url: '/dashboard',
 			icon: LayoutDashboardIcon,
 			isActive: true,
 		},
 		{
 			title: 'People',
-			url: '#',
+			url: '/people',
 			icon: Users,
 		},
 		{
 			title: 'Documents',
-			url: '#',
+			url: '/documents',
 			icon: BookOpen,
 		},
 		{
 			title: 'Settings',
-			url: '#',
+			url: '/settings',
 			icon: Settings,
 		},
 	],

@@ -17,6 +17,7 @@ import {
 	SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import React from 'react';
+import Link from 'next/link';
 
 export function NavMain({
 	items,
@@ -46,10 +47,12 @@ export function NavMain({
 							>
 								<SidebarMenuItem>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuButton tooltip={item.title}>
-											{item.icon && <item.icon />}
-											<span>{item.title}</span>
-											<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+										<SidebarMenuButton tooltip={item.title} asChild>
+											<Link href={item.url}>
+												{item.icon && <item.icon />}
+												<span>{item.title}</span>
+												<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+											</Link>
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
@@ -73,9 +76,12 @@ export function NavMain({
 								<SidebarMenuButton
 									isActive={item.isActive}
 									tooltip={item.title}
+									asChild
 								>
-									{item.icon && <item.icon />}
-									<span>{item.title}</span>
+									<Link href={item.url}>
+										{item.icon && <item.icon />}
+										<span>{item.title}</span>
+									</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						)}
