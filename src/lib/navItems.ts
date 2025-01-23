@@ -1,15 +1,17 @@
 import {
 	BookOpen,
 	Bot,
+	Building2,
 	Command,
+	DollarSign,
 	GalleryVerticalEnd,
 	LayoutDashboardIcon,
 	Library,
 	Map,
 	MessageCircleQuestion,
 	Settings,
-	Settings2,
 	SquareTerminal,
+	UserCircle,
 	Users,
 } from 'lucide-react';
 
@@ -81,18 +83,18 @@ export const navItems = {
 		{
 			title: 'Users',
 			url: '#',
-			icon: SquareTerminal,
+			icon: UserCircle,
 			isActive: true,
 		},
 		{
 			title: 'Companies',
 			url: '#',
-			icon: Bot,
+			icon: Building2,
 		},
 		{
 			title: 'AutoPay',
 			url: '#',
-			icon: BookOpen,
+			icon: DollarSign,
 			items: [
 				{
 					title: 'Transfer',
@@ -123,7 +125,7 @@ export const navItems = {
 		{
 			title: 'Settings',
 			url: '#',
-			icon: Settings2,
+			icon: Settings,
 			items: [
 				{
 					title: 'General',
