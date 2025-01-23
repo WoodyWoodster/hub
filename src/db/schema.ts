@@ -1,4 +1,3 @@
-import { relations } from 'drizzle-orm';
 import { date, integer, pgTable, varchar } from 'drizzle-orm/pg-core';
 
 export const people = pgTable('people', {
@@ -11,23 +10,11 @@ export const people = pgTable('people', {
 
 export const addresses = pgTable('addresses', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	personId: integer('person_id').notNull(),
+	personId: integer('person_id')
+		.references(() => people.id)
+		.notNull(),
 	streetAddress: varchar('street_address', { length: 255 }).notNull(),
 	city: varchar({ length: 100 }).notNull(),
 	state: varchar({ length: 2 }).notNull(),
 	zipCode: varchar('zip_code', { length: 10 }).notNull(),
 });
-
-export const peopleRelations = relations(people, ({ one }) => ({
-	address: one(addresses, {
-		fields: [people.id],
-		references: [addresses.personId],
-	}),
-}));
-
-export const addressesRelations = relations(addresses, ({ one }) => ({
-	person: one(people, {
-		fields: [addresses.personId],
-		references: [people.id],
-	}),
-}));
