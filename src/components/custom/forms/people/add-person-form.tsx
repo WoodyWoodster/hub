@@ -12,7 +12,8 @@ import { Check } from 'lucide-react';
 
 export function AddPersonForm({
 	className,
-}: React.ComponentProps<typeof Card>) {
+	onSuccess,
+}: React.ComponentProps<typeof Card> & { onSuccess: () => void }) {
 	const [state, formAction, pending] = React.useActionState(addPersonAction, {
 		defaultValues: {
 			fullName: '',
@@ -27,6 +28,12 @@ export function AddPersonForm({
 		success: false,
 		errors: {} as Record<string, string>,
 	});
+
+	React.useEffect(() => {
+		if (state.success) {
+			onSuccess();
+		}
+	}, [state.success, onSuccess]);
 
 	return (
 		<Card className={cn('w-full max-w-2xl', className)}>

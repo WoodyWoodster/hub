@@ -33,7 +33,7 @@ export function AddPersonButton() {
 					</DrawerDescription>
 				</DrawerHeader>
 				<div className="p-4 pb-0">
-					<AddPersonForm />
+					<AddPersonForm onSuccess={() => setOpen(false)} />
 				</div>
 				<DrawerFooter>
 					<DrawerClose asChild>
