@@ -18,7 +18,7 @@ export default function ApplicationLayout({
 						<Search className="size-5" />
 					</div>
 				</header>
-				<main className="px-8">{children}</main>
+				<main className="px-8 pb-16">{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
 	);
