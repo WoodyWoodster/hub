@@ -35,6 +35,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { AddPersonButton } from '@/components/custom/buttons/people/add-person-button';
 
 const data: Payment[] = [
 	{
@@ -208,6 +209,7 @@ export default function PeoplePage() {
 						}
 						className="max-w-sm bg-white"
 					/>
+					<AddPersonButton />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="secondary" className="ml-auto">
