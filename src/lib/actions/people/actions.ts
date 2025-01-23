@@ -13,14 +13,16 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 	try {
 		const data = addPersonSchema.parse(Object.fromEntries(formData));
 
+		const insertPersonData: typeof people.$inferInsert = {
+			email: data.email,
+			fullName: data.fullName,
+			dateOfBirth: data.dateOfBirth,
+			hireDate: data.hireDate,
+		};
+
 		const [insertedPerson] = await db
 			.insert(people)
-			.values({
-				fullName: data.fullName,
-				email: data.email,
-				dateOfBirth: new Date(data.dateOfBirth),
-				hireDate: new Date(data.hireDate),
-			})
+			.values(insertPersonData)
 			.returning({ id: people.id });
 
 		if (!insertedPerson) {
