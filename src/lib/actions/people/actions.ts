@@ -1,5 +1,7 @@
 'use server';
 
+import { db } from '@/db';
+import { addresses, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
 import { z } from 'zod';
 
@@ -11,10 +13,34 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 	try {
 		const data = addPersonSchema.parse(Object.fromEntries(formData));
 
-		// This simulates a slow response like a form submission.
-		// Need to replace this with our actual logic to store this
-		// person to our Neon db.
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		const [insertedPerson] = await db
+			.insert(people)
+			.values({
+				fullName: data.fullName,
+				email: data.email,
+				dateOfBirth: new Date(data.dateOfBirth),
+				hireDate: new Date(data.hireDate),
+			})
+			.returning({ id: people.id });
+
+		if (!insertedPerson) {
+			throw new Error('Failed to insert person');
+		}
+
+		const [insertedAddress] = await db
+			.insert(addresses)
+			.values({
+				personId: insertedPerson.id,
+				streetAddress: data.streetAddress,
+				city: data.city,
+				state: data.state,
+				zipCode: data.zipCode,
+			})
+			.returning({ id: addresses.id });
+
+		if (!insertedAddress) {
+			throw new Error('Failed to insert address');
+		}
 
 		console.log(data);
 
@@ -34,22 +60,24 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		};
 	} catch (error) {
 		if (error instanceof z.ZodError) {
+			const fieldErrors = Object.fromEntries(
+				Object.entries(error.formErrors.fieldErrors).map(([key, value]) => [
+					key,
+					value?.join(', '),
+				]),
+			);
 			return {
 				defaultValues,
 				success: false,
-				errors: Object.fromEntries(
-					Object.entries(error.flatten().fieldErrors).map(([key, value]) => [
-						key,
-						value?.join(', '),
-					]),
-				),
+				errors: fieldErrors,
 			};
 		}
 
+		console.error(error);
 		return {
 			defaultValues,
 			success: false,
-			errors: null,
+			errors: { form: 'An unexpected error occurred' },
 		};
 	}
 }
