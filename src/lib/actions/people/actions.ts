@@ -1,5 +1,6 @@
 'use server';
 
+import { signOut } from '@/auth';
 import { db } from '@/db';
 import { addresses, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
@@ -82,4 +83,8 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 			errors: { form: 'An unexpected error occurred' },
 		};
 	}
+}
+
+export async function logOut() {
+	await signOut();
 }

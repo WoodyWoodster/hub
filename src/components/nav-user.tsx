@@ -19,6 +19,7 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar';
 import React from 'react';
+import { LogOutButton } from './custom/buttons/people/log-out-button';
 
 export function NavUser({
 	user,
@@ -112,7 +113,7 @@ export function NavUser({
 						<DropdownMenuSeparator />
 						<DropdownMenuItem>
 							<LogOut />
-							Log out
+							<LogOutButton />
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
