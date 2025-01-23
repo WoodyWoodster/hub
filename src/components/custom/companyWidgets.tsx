@@ -1,5 +1,5 @@
 import { companyWidgets } from '@/lib/dashboardWidgets';
-import { AutopayWidget } from './widgets/employer/autopayWidget';
+import { AutoPayWidget } from './widgets/employer/autopayWidget';
 import { EnrollmentChart } from './widgets/employer/enrollmentChart';
 import { ComplianceChart } from './widgets/employer/complianceChart';
 import { UpdatesWidget } from './widgets/employer/updatesWidget';
@@ -9,7 +9,7 @@ export function CompanyWidgets() {
 	return (
 		<div className="flex flex-col gap-4">
 			{companyWidgets.autopayWidget.map((widget) => (
-				<AutopayWidget
+				<AutoPayWidget
 					key={widget.title}
 					title={widget.title}
 					autopayColumns={widget.autopayColumns}

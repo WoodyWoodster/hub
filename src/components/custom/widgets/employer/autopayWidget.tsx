@@ -1,10 +1,5 @@
 import { cn } from '@/lib/utils';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -26,7 +21,7 @@ type AutopayData = {
 
 type CardProps = React.ComponentProps<typeof Card> & AutopayData;
 
-export function AutopayWidget({
+export function AutoPayWidget({
 	className,
 	title,
 	autopayColumns,
@@ -36,8 +31,8 @@ export function AutopayWidget({
 		<Card className={cn('flex w-full flex-col', className)} {...props}>
 			<CardHeader className="flex-row items-center justify-between">
 				<CardTitle>{title}</CardTitle>
-				<Button className='flex items-center' variant="link" size="link">
-					<span className='block text-xs leading-none'>View Details</span>
+				<Button className="flex items-center" variant="link" size="link">
+					<span className="block text-xs leading-none">View Details</span>
 				</Button>
 			</CardHeader>
 			<CardContent>
@@ -49,10 +44,10 @@ export function AutopayWidget({
 							</span>
 							<div>
 								{column.amount && (
-                                    <>
-                                        <span className="text-3xl font-bold leading-none block text-seafoam-700">
-                                            {column.amount}
-                                        </span>
+									<>
+										<span className="block text-3xl font-bold leading-none text-seafoam-700">
+											{column.amount}
+										</span>
 										<div className="mt-4 text-xs text-muted-foreground">
 											Last updated: {column.updatedDate}
 										</div>
@@ -60,20 +55,19 @@ export function AutopayWidget({
 								)}
 								{column.percentage && (
 									<>
-                                        <span className="text-3xl font-bold leading-none block text-seafoam-700">
-                                            {column.percentage}
-                                        </span>
-                                        <div className="mt-4 text-xs text-muted-foreground">
-                                            Active Employees
-                                        </div>
-                                    </>
+										<span className="block text-3xl font-bold leading-none text-seafoam-700">
+											{column.percentage}
+										</span>
+										<div className="mt-4 text-xs text-muted-foreground">
+											Active Employees
+										</div>
+									</>
 								)}
 							</div>
 						</div>
 					))}
 				</div>
 			</CardContent>
-
 		</Card>
 	);
 }

@@ -69,6 +69,11 @@ export const navItems = {
 			icon: Users,
 		},
 		{
+			title: 'AutoPay',
+			url: '/autopay',
+			icon: DollarSign,
+		},
+		{
 			title: 'Documents',
 			url: '/documents',
 			icon: BookOpen,
