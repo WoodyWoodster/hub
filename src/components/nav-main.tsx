@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function NavMain({
 	items,
@@ -33,6 +34,8 @@ export function NavMain({
 		}[];
 	}[];
 }) {
+	const pathname = usePathname();
+
 	return (
 		<SidebarGroup>
 			<SidebarMenu>
@@ -42,7 +45,7 @@ export function NavMain({
 							<Collapsible
 								key={item.title}
 								asChild
-								defaultOpen={item.isActive}
+								defaultOpen={pathname.startsWith(item.url)}
 								className="group/collapsible"
 							>
 								<SidebarMenuItem>
@@ -74,7 +77,7 @@ export function NavMain({
 						{!item.items && (
 							<SidebarMenuItem key={item.title}>
 								<SidebarMenuButton
-									isActive={item.isActive}
+									isActive={pathname.startsWith(item.url)}
 									tooltip={item.title}
 									asChild
 								>
