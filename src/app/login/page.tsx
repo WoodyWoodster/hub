@@ -1,5 +1,5 @@
-import { LogInButton } from '@/components/login-button'
+import LogInForm from '@/components/custom/forms/auth/log-in-form';
 
 export default function LogIn() {
-    return <LogInButton />
+	return <LogInForm />;
 }
