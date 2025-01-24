@@ -153,7 +153,7 @@ function FormField({ id, label, error, ...props }: FormFieldProps) {
 			<Input
 				id={id}
 				name={id}
-				className="group-data-[invalid=true]/field:border-destructive focus-visible:group-data-[invalid=true]/field:ring-destructive"
+				className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
 				aria-invalid={!!error}
 				aria-errormessage={`error-${id}`}
 				{...props}
