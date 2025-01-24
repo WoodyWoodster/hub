@@ -4,6 +4,7 @@ import { signOut } from '@/auth';
 import { db } from '@/db';
 import { addresses, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
+import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
 
 export async function addPersonAction(_prevState: unknown, formData: FormData) {
@@ -46,6 +47,7 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		}
 
 		console.log(data);
+		revalidateTag('people');
 
 		return {
 			defaultValues: {
