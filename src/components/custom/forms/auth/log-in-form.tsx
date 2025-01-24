@@ -82,7 +82,7 @@ export default function LogInForm() {
 							/>
 						</div>
 						<Button type="submit" className="w-full">
-							Sign in
+							Log in
 						</Button>
 					</form>
 				</CardContent>
