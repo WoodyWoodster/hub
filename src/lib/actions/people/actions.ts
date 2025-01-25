@@ -20,7 +20,6 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 			email: data.email,
 			fullName: data.fullName,
 			dateOfBirth: data.dateOfBirth,
-			hireDate: data.hireDate,
 		};
 
 		const [insertedPerson] = await db
@@ -35,7 +34,6 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		const [insertedAddress] = await db
 			.insert(addresses)
 			.values({
-				personId: insertedPerson.id,
 				streetAddress: data.streetAddress,
 				city: data.city,
 				state: data.state,

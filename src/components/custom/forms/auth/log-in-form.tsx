@@ -10,8 +10,10 @@ import {
 	CardHeader,
 	CardContent,
 	CardFooter,
+	CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function LogInForm() {
 	const [email, setEmail] = useState('');
@@ -40,9 +42,9 @@ export default function LogInForm() {
 		<div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
 			<Card className="w-full max-w-md">
 				<CardHeader>
-					<h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
-						Log in to HRA Hub
-					</h2>
+					<CardTitle className="text-center text-2xl font-bold tracking-tight text-gray-900">
+						HRA Hub
+					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleSubmit} className="space-y-6">
@@ -89,12 +91,12 @@ export default function LogInForm() {
 				<CardFooter>
 					<p className="text-center text-sm text-gray-500">
 						Not a member?{' '}
-						<a
-							href="#"
+						<Link
+							href="/sign-up"
 							className="text-primary hover:text-primary/80 font-semibold"
 						>
 							Start a 14 day free trial
-						</a>
+						</Link>
 					</p>
 				</CardFooter>
 			</Card>
