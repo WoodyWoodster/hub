@@ -41,7 +41,6 @@ interface Person {
 	fullName: string;
 	email: string;
 	dateOfBirth: string;
-	hireDate: string;
 }
 
 interface PeopleTableProps {
@@ -160,7 +159,7 @@ export const PeopleTable: FC<PeopleTableProps> = ({ people }) => {
 
 	return (
 		<>
-			<h1 className="mb-6 font-display text-3xl font-semibold">People</h1>
+			<h1 className="font-display mb-6 text-3xl font-semibold">People</h1>
 			<div className="w-full">
 				<div className="flex items-center py-4">
 					<Input
@@ -250,7 +249,7 @@ export const PeopleTable: FC<PeopleTableProps> = ({ people }) => {
 					</Table>
 				</div>
 				<div className="flex items-center justify-end space-x-2 py-4">
-					<div className="flex-1 text-sm text-muted-foreground">
+					<div className="text-muted-foreground flex-1 text-sm">
 						{table.getFilteredSelectedRowModel().rows.length} of{' '}
 						{table.getFilteredRowModel().rows.length} row(s) selected.
 					</div>
