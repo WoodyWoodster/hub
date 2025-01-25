@@ -43,9 +43,5 @@ export const signUpCompanySchema = z.object({
 			.string()
 			.min(2, { message: 'Zip Code must be at least 2 characters' })
 			.max(20, { message: 'Zip Code must be at most 20 characters' }),
-		country: z
-			.string()
-			.min(2, { message: 'Country must be at least 2 characters' })
-			.max(100, { message: 'Country must be at most 100 characters' }),
 	}),
 });
