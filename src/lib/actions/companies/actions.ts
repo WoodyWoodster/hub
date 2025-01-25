@@ -25,7 +25,7 @@ function parseFormData(formData: FormData): Record<string, any> {
 			}
 		});
 	});
-	console.log('Parsed Data:', JSON.stringify(obj, null, 2)); // Added log
+	console.log('Parsed Data:', JSON.stringify(obj, null, 2));
 	return obj;
 }
 
