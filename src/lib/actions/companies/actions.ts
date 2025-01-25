@@ -104,7 +104,6 @@ export async function signUpCompanyAction(
 					fullName: '',
 					email: '',
 					dateOfBirth: '',
-					// password: '',
 				},
 				company: {
 					name: '',
