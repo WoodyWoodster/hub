@@ -14,9 +14,9 @@ export const people = pgTable('people', {
 	email: varchar({ length: 255 }).notNull().unique(),
 	dateOfBirth: date('date_of_birth').notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const addresses = pgTable('addresses', {
@@ -26,9 +26,9 @@ export const addresses = pgTable('addresses', {
 	state: varchar({ length: 2 }).notNull(),
 	zipCode: varchar('zip_code', { length: 10 }).notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const companies = pgTable('companies', {
@@ -38,9 +38,9 @@ export const companies = pgTable('companies', {
 	industry: varchar({ length: 50 }).notNull(),
 	size: varchar({ length: 50 }).notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const companyPeople = pgTable(
@@ -58,7 +58,9 @@ export const companyPeople = pgTable(
 		updatedAt: timestamp('updated_at', {
 			mode: 'date',
 			precision: 3,
-		}).$onUpdate(() => new Date()),
+		})
+			.$onUpdate(() => new Date())
+			.defaultNow(),
 	},
 	(table) => [
 		uniqueIndex('unique_company_people').on(table.companyId, table.personId),
@@ -73,9 +75,9 @@ export const companyAddresses = pgTable('company_addresses', {
 		.references(() => addresses.id)
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const roles = pgTable('roles', {
@@ -83,9 +85,9 @@ export const roles = pgTable('roles', {
 	name: varchar({ length: 50 }).notNull().unique(),
 	description: text('description'),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const permissions = pgTable('permissions', {
@@ -93,9 +95,9 @@ export const permissions = pgTable('permissions', {
 	name: varchar({ length: 100 }).notNull().unique(),
 	description: text('description'),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(
-		() => new Date(),
-	),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.$onUpdate(() => new Date())
+		.defaultNow(),
 });
 
 export const rolePermissions = pgTable(
