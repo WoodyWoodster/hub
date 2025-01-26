@@ -6,7 +6,9 @@ import {
 	AdminInitiateAuthCommand,
 	ListUsersCommand,
 	type ListUsersCommandInput,
+	AdminCreateUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { err, ok, Result } from './types/result';
 
 const cognitoClient = new CognitoIdentityProviderClient({
 	region: process.env.AWS_REGION,
@@ -19,6 +21,39 @@ interface User {
 	accessToken: string | undefined;
 	refreshToken: string | undefined;
 }
+
+interface CreateUserError {
+	message: string;
+}
+
+type CreateUserResult = Result<boolean, CreateUserError>;
+
+export const createUser = async (
+	email: string,
+	password: string,
+): Promise<CreateUserResult> => {
+	const params = {
+		UserPoolId: process.env.COGNITO_USER_POOL_ID,
+		Username: email,
+		TemporaryPassword: password,
+		// UserAttributes
+	};
+
+	try {
+		const command = new AdminCreateUserCommand(params);
+		const result = await cognitoClient.send(command);
+		if (result.User) {
+			return ok(true);
+		} else {
+			return err({ message: 'Failed to create user' });
+		}
+	} catch (error) {
+		console.error('Error creating user:', error);
+		const errorMessage =
+			error instanceof Error ? error.message : 'An unexpected error occurred';
+		return err({ message: errorMessage });
+	}
+};
 
 async function getUsernameByEmail(email: string): Promise<string | null> {
 	const params: ListUsersCommandInput = {
