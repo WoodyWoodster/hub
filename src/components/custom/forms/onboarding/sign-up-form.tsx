@@ -1,7 +1,6 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import {
 	Select,
@@ -11,19 +10,35 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { signUpCompanyAction } from '@/lib/actions/companies/actions';
-import { useActionState, useEffect } from 'react';
 import { usStates } from '@/lib/us-states';
-import { Check } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
+import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from '@/hooks/use-toast';
 
 export function SignUpForm() {
-	const [state, formAction, pending] = useActionState(signUpCompanyAction, {
+	const router = useRouter();
+	const form = useForm<z.infer<typeof signUpCompanySchema>>({
+		resolver: zodResolver(signUpCompanySchema),
+		// TODO: Remove the nested objects and use flat structure
 		defaultValues: {
 			person: {
 				fullName: '',
 				email: '',
 				dateOfBirth: '',
+				password: '',
+				confirmPassword: '',
 			},
 			company: {
 				name: '',
@@ -36,18 +51,39 @@ export function SignUpForm() {
 				city: '',
 				state: '',
 				zipCode: '',
-				country: '',
 			},
 		},
-		success: false,
-		errors: {} as Record<string, string>,
 	});
 
-	useEffect(() => {
-		if (state.success) {
-			redirect('/dashboard');
+	// TODO: Simplify this when I flatten the schema
+	async function onSubmit(data: z.infer<typeof signUpCompanySchema>) {
+		console.log(data);
+		const formData = new FormData();
+		Object.entries(data).forEach(([key, value]) => {
+			if (typeof value === 'object') {
+				Object.entries(value).forEach(([subKey, subValue]) => {
+					formData.append(`${key}.${subKey}`, subValue as string);
+				});
+			} else {
+				formData.append(key, value);
+			}
+		});
+
+		const result = await signUpCompanyAction(formData);
+
+		if (result.error) {
+			console.log(result.error);
+		} else if (result.success) {
+			// TODO: Should eventually just sign in the user
+			// and redirect to next page of onboarding
+			router.push('/dashboard');
 		}
-	}, [state.success]);
+
+		toast({
+			title: 'Welcome to HRA Hub!! 🎉',
+			description: 'You have successfully signed up! 🚀',
+		});
+	}
 
 	return (
 		<div className="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
@@ -56,210 +92,287 @@ export function SignUpForm() {
 					Let&apos;s get your account setup!
 				</h2>
 			</div>
-
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
-					<form action={formAction} className="space-y-8">
-						<Progress value={33} className="w-full" />
-
-						{state.success ? (
-							<p className="flex items-center gap-2 text-sm text-green-600">
-								<Check className="h-5 w-5" />
-								Company added successfully.
-							</p>
-						) : null}
-
-						<div className="space-y-8">
-							<div>
-								<h3 className="text-lg leading-6 font-medium text-gray-900">
-									Personal Information
-								</h3>
-								<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-									<div className="sm:col-span-3">
-										<Label htmlFor="fullName">Full Name</Label>
-										<Input
-											id="fullName"
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+							<Progress value={33} className="w-full" />
+							<div className="space-y-8">
+								<div>
+									<h3 className="text-lg leading-6 font-medium text-gray-900">
+										Personal Information
+									</h3>
+									<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+										<FormField
+											control={form.control}
 											name="person.fullName"
-											placeholder="John Doe"
-											disabled={pending}
-											defaultValue={state.defaultValues?.person.fullName}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Full Name</FormLabel>
+													<FormControl>
+														<Input placeholder="John Doe" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-3">
-										<Label htmlFor="email">Email</Label>
-										<Input
-											id="email"
+										<FormField
+											control={form.control}
 											name="person.email"
-											type="email"
-											placeholder="john.doe@example.com"
-											disabled={pending}
-											defaultValue={state.defaultValues?.person.email}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Email</FormLabel>
+													<FormControl>
+														<Input
+															type="email"
+															placeholder="john.doe@example.com"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-3">
-										<Label htmlFor="dateOfBirth">Date of Birth</Label>
-										<Input
-											id="dateOfBirth"
+										<FormField
+											control={form.control}
+											name="person.password"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Enter your password"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="person.confirmPassword"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Confirm Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Confirm your password"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
 											name="person.dateOfBirth"
-											type="date"
-											disabled={pending}
-											defaultValue={state.defaultValues?.person.dateOfBirth}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Date of Birth</FormLabel>
+													<FormControl>
+														<Input type="date" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
 									</div>
 								</div>
-							</div>
-
-							<div>
-								<h3 className="text-lg leading-6 font-medium text-gray-900">
-									Company Details
-								</h3>
-								<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-									<div className="sm:col-span-3">
-										<Label htmlFor="orgName">Company Name</Label>
-										<Input
-											id="orgName"
+								<div>
+									<h3 className="text-lg leading-6 font-medium text-gray-900">
+										Company Details
+									</h3>
+									<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+										<FormField
+											control={form.control}
 											name="company.name"
-											placeholder="ACME Inc"
-											required
-											defaultValue={state.defaultValues?.company.name}
-											disabled={pending}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Company Name</FormLabel>
+													<FormControl>
+														<Input placeholder="ACME Inc" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-3">
-										<Label htmlFor="website">Website</Label>
-										<Input
-											id="website"
+										<FormField
+											control={form.control}
 											name="company.website"
-											type="url"
-											placeholder="https://acme.com"
-											defaultValue={state.defaultValues?.company.website}
-											disabled={pending}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Website</FormLabel>
+													<FormControl>
+														<Input
+															type="url"
+															placeholder="https://acme.com"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-3">
-										<Label htmlFor="industry">Industry</Label>
-										<Select
+										<FormField
+											control={form.control}
 											name="company.industry"
-											defaultValue={state.defaultValues?.company.industry}
-											required
-											disabled={pending}
-										>
-											<SelectTrigger className="mt-1">
-												<SelectValue placeholder="Select an industry" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="technology">Technology</SelectItem>
-												<SelectItem value="healthcare">Healthcare</SelectItem>
-												<SelectItem value="finance">Finance</SelectItem>
-												<SelectItem value="education">Education</SelectItem>
-												<SelectItem value="other">Other</SelectItem>
-											</SelectContent>
-										</Select>
-									</div>
-
-									<div className="sm:col-span-3">
-										<Label htmlFor="size">Company Size</Label>
-										<Select
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Industry</FormLabel>
+													<FormControl>
+														<Select
+															onValueChange={field.onChange}
+															defaultValue={field.value}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder="Select an industry" />
+															</SelectTrigger>
+															<SelectContent>
+																<SelectItem value="technology">
+																	Technology
+																</SelectItem>
+																<SelectItem value="healthcare">
+																	Healthcare
+																</SelectItem>
+																<SelectItem value="finance">Finance</SelectItem>
+																<SelectItem value="education">
+																	Education
+																</SelectItem>
+																<SelectItem value="other">Other</SelectItem>
+															</SelectContent>
+														</Select>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
 											name="company.size"
-											defaultValue={state.defaultValues?.company.size}
-											required
-											disabled={pending}
-										>
-											<SelectTrigger className="mt-1">
-												<SelectValue placeholder="Select company size" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1-10">1-10 employees</SelectItem>
-												<SelectItem value="11-50">11-50 employees</SelectItem>
-												<SelectItem value="51-200">51-200 employees</SelectItem>
-												<SelectItem value="201-500">
-													201-500 employees
-												</SelectItem>
-												<SelectItem value="501+">501+ employees</SelectItem>
-											</SelectContent>
-										</Select>
+											render={({ field }) => (
+												<FormItem className="sm:col-span-3">
+													<FormLabel>Company Size</FormLabel>
+													<FormControl>
+														<Select
+															onValueChange={field.onChange}
+															defaultValue={field.value}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder="Select company size" />
+															</SelectTrigger>
+															<SelectContent>
+																<SelectItem value="1-10">
+																	1-10 employees
+																</SelectItem>
+																<SelectItem value="11-50">
+																	11-50 employees
+																</SelectItem>
+																<SelectItem value="51-200">
+																	51-200 employees
+																</SelectItem>
+																<SelectItem value="201-500">
+																	201-500 employees
+																</SelectItem>
+																<SelectItem value="501+">
+																	501+ employees
+																</SelectItem>
+															</SelectContent>
+														</Select>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 									</div>
 								</div>
-							</div>
-
-							<div>
-								<h3 className="text-lg leading-6 font-medium text-gray-900">
-									Company Address
-								</h3>
-								<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-									<div className="sm:col-span-6">
-										<Label htmlFor="street">Street Address</Label>
-										<Input
-											id="street"
-											required
+								<div>
+									<h3 className="text-lg leading-6 font-medium text-gray-900">
+										Company Address
+									</h3>
+									<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+										<FormField
+											control={form.control}
 											name="address.street"
-											placeholder="12345 Straße"
-											disabled={pending}
-											defaultValue={state.defaultValues?.address.street}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-6">
+													<FormLabel>Street Address</FormLabel>
+													<FormControl>
+														<Input placeholder="12345 Straße" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-2">
-										<Label htmlFor="city">City</Label>
-										<Input
-											id="city"
+										<FormField
+											control={form.control}
 											name="address.city"
-											placeholder="Richardson"
-											required
-											disabled={pending}
-											defaultValue={state.defaultValues?.address.city}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-2">
+													<FormLabel>City</FormLabel>
+													<FormControl>
+														<Input placeholder="Richardson" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
-									</div>
-
-									<div className="sm:col-span-2">
-										<Label htmlFor="state">State</Label>
-										<Select name="address.state" disabled={pending}>
-											<SelectTrigger className="mt-1">
-												<SelectValue placeholder="Select a state" />
-											</SelectTrigger>
-											<SelectContent>
-												{usStates.map((state) => (
-													<SelectItem key={state.value} value={state.value}>
-														{state.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</div>
-
-									<div className="sm:col-span-2">
-										<Label htmlFor="zipCode">ZIP Code</Label>
-										<Input
-											id="zipCode"
+										<FormField
+											control={form.control}
+											name="address.state"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-2">
+													<FormLabel>State</FormLabel>
+													<FormControl>
+														<Select
+															onValueChange={field.onChange}
+															defaultValue={field.value}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder="Select a state" />
+															</SelectTrigger>
+															<SelectContent>
+																{usStates.map((state) => (
+																	<SelectItem
+																		key={state.value}
+																		value={state.value}
+																	>
+																		{state.label}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
 											name="address.zipCode"
-											placeholder="12345"
-											required
-											disabled={pending}
-											defaultValue={state.defaultValues?.address.zipCode}
-											className="mt-1"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-2">
+													<FormLabel>ZIP Code</FormLabel>
+													<FormControl>
+														<Input placeholder="12345" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
 										/>
 									</div>
 								</div>
 							</div>
-						</div>
-
-						<div>
-							<Button type="submit" className="w-full" disabled={pending}>
-								{pending ? 'Adding Company...' : 'Add Company'}
+							<Button type="submit" className="w-full">
+								{form.formState.isSubmitting
+									? 'Adding Company...'
+									: 'Add Company'}
 							</Button>
-						</div>
-					</form>
+						</form>
+					</Form>
 				</div>
 			</div>
 		</div>

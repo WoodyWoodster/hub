@@ -5,7 +5,7 @@ import { db } from '@/db';
 import { addresses, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
 import { revalidateTag } from 'next/cache';
-import { permanentRedirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 export async function addPersonAction(_prevState: unknown, formData: FormData) {
@@ -34,7 +34,7 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		const [insertedAddress] = await db
 			.insert(addresses)
 			.values({
-				streetAddress: data.streetAddress,
+				street: data.street,
 				city: data.city,
 				state: data.state,
 				zipCode: data.zipCode,
@@ -54,7 +54,7 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 				email: '',
 				dateOfBirth: '',
 				hireDate: '',
-				streetAddress: '',
+				street: '',
 				city: '',
 				state: '',
 				zipCode: '',
@@ -88,5 +88,5 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 
 export async function logOut() {
 	await signOut();
-	permanentRedirect('/');
+	redirect('/login');
 }
