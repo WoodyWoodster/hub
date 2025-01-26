@@ -32,12 +32,16 @@ type CreateUserResult = Result<boolean, CreateUserError>;
 export const createUser = async (
 	email: string,
 	password: string,
+	userAttributes: { [key: string]: string },
 ): Promise<CreateUserResult> => {
 	const params = {
 		UserPoolId: process.env.COGNITO_USER_POOL_ID,
 		Username: email,
 		TemporaryPassword: password,
-		// UserAttributes
+		UserAttributes: Object.entries(userAttributes).map(([Name, Value]) => ({
+			Name,
+			Value,
+		})),
 	};
 
 	try {
@@ -46,6 +50,8 @@ export const createUser = async (
 		if (!result.User) {
 			return err({ message: 'Failed to create user' });
 		}
+		// TODO: Check if the user is an admin and set the user's password as permanent
+		// If they aren't we need to send a welcome email with a link to set their password
 		const setPermanentPasswordCommand = new AdminSetUserPasswordCommand({
 			UserPoolId: process.env.COGNITO_USER_POOL_ID,
 			Username: email,
