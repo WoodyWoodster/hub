@@ -43,26 +43,25 @@ export const createUser = async (
 	try {
 		const command = new AdminCreateUserCommand(params);
 		const result = await cognitoClient.send(command);
-		if (result.User) {
-			const setPermanentPasswordCommand = new AdminSetUserPasswordCommand({
-				UserPoolId: process.env.COGNITO_USER_POOL_ID,
-				Username: email,
-				Password: password,
-				Permanent: true,
-			});
-			const setPasswordResult = await cognitoClient.send(
-				setPermanentPasswordCommand,
-			);
-			if (
-				!setPasswordResult.$metadata.httpStatusCode ||
-				setPasswordResult.$metadata.httpStatusCode !== 200
-			) {
-				return err({ message: 'Failed to set permanent password' });
-			}
-			return ok(true);
-		} else {
+		if (!result.User) {
 			return err({ message: 'Failed to create user' });
 		}
+		const setPermanentPasswordCommand = new AdminSetUserPasswordCommand({
+			UserPoolId: process.env.COGNITO_USER_POOL_ID,
+			Username: email,
+			Password: password,
+			Permanent: true,
+		});
+		const setPasswordResult = await cognitoClient.send(
+			setPermanentPasswordCommand,
+		);
+		if (
+			!setPasswordResult.$metadata.httpStatusCode ||
+			setPasswordResult.$metadata.httpStatusCode !== 200
+		) {
+			return err({ message: 'Failed to set permanent password' });
+		}
+		return ok(true);
 	} catch (error) {
 		console.error('Error creating user:', error);
 		const errorMessage =
