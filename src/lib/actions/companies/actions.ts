@@ -49,6 +49,8 @@ export async function signUpCompanyAction(formData: FormData) {
 	console.log('company', company);
 	console.log('address', address);
 
+	let userAttributes = {};
+
 	try {
 		await db.transaction(async (tx) => {
 			const [insertedCompany] = await tx
@@ -80,9 +82,7 @@ export async function signUpCompanyAction(formData: FormData) {
 			});
 
 			const [externalAdminRole] = await tx
-				.select({
-					id: roles.id,
-				})
+				.select()
 				.from(roles)
 				.where(sql`name = 'external_admin'`);
 
@@ -90,9 +90,28 @@ export async function signUpCompanyAction(formData: FormData) {
 				companyPersonId: insertCompanyPerson.id,
 				roleId: externalAdminRole.id,
 			});
+
+			userAttributes = {
+				email: person.email,
+				name: person.fullName,
+				birthdate: person.dateOfBirth,
+				'custom:companyAssociations': JSON.stringify([
+					{
+						companyId: insertedCompany.id,
+						companyName: company.name,
+						companyPersonId: insertCompanyPerson.id,
+						roleId: externalAdminRole.id,
+						roleName: externalAdminRole.name,
+					},
+				]),
+			};
 		});
 
-		const result = await createUser(person.email, person.password);
+		const result = await createUser(
+			person.email,
+			person.password,
+			userAttributes,
+		);
 
 		if (isErr(result)) {
 			return { error: result.error };
