@@ -18,7 +18,7 @@ export const addresses = pgTable('addresses', {
 export const companies = pgTable('companies', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	name: varchar({ length: 255 }).notNull(),
-	website: varchar({ length: 255 }).notNull(),
+	website: varchar({ length: 255 }),
 	industry: varchar({ length: 50 }).notNull(),
 	size: varchar({ length: 50 }).notNull(),
 });
