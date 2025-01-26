@@ -40,6 +40,7 @@ interface Person {
 	id: number;
 	fullName: string;
 	email: string;
+	role: string | null;
 	dateOfBirth: string;
 }
 
@@ -89,6 +90,11 @@ export const columns: ColumnDef<Person>[] = [
 			);
 		},
 		cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+	},
+	{
+		accessorKey: 'role',
+		header: 'Role',
+		cell: ({ row }) => <div>{row.getValue('role')}</div>,
 	},
 	{
 		accessorKey: 'dateOfBirth',
