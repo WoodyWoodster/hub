@@ -7,10 +7,13 @@ import {
 	companies,
 	companyAddresses,
 	companyPeople,
+	companyPersonRoles,
 	people,
+	roles,
 } from '@/db/schema';
 import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
 import { isErr } from '@/types/result';
+import { sql } from 'drizzle-orm';
 
 export async function signUpCompanyAction(formData: FormData) {
 	console.log('formData', formData);
@@ -63,14 +66,29 @@ export async function signUpCompanyAction(formData: FormData) {
 				.values(address)
 				.returning({ id: addresses.id });
 
-			await tx.insert(companyPeople).values({
-				companyId: insertedCompany.id,
-				personId: insertedPerson.id,
-			});
+			const [insertCompanyPerson] = await tx
+				.insert(companyPeople)
+				.values({
+					companyId: insertedCompany.id,
+					personId: insertedPerson.id,
+				})
+				.returning({ id: companyPeople.id });
 
 			await tx.insert(companyAddresses).values({
 				companyId: insertedCompany.id,
 				addressId: insertedAddress.id,
+			});
+
+			const [externalAdminRole] = await tx
+				.select({
+					id: roles.id,
+				})
+				.from(roles)
+				.where(sql`name = 'external_admin'`);
+
+			await tx.insert(companyPersonRoles).values({
+				companyPersonId: insertCompanyPerson.id,
+				roleId: externalAdminRole.id,
 			});
 		});
 
