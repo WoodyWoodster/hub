@@ -27,7 +27,7 @@ export function AddPersonForm({
 			email: '',
 			dateOfBirth: '',
 			hireDate: '',
-			streetAddress: '',
+			street: '',
 			city: '',
 			state: '',
 			zipCode: '',
@@ -173,30 +173,27 @@ export function AddPersonForm({
 						<h3 className="text-lg font-semibold">Home Address</h3>
 						<div
 							className="group/field grid gap-2"
-							data-invalid={!!state.errors?.streetAddress}
+							data-invalid={!!state.errors?.street}
 						>
 							<Label
-								htmlFor="streetAddress"
+								htmlFor="street"
 								className="group-data-[invalid=true]/field:text-destructive"
 							>
 								Street Address <span aria-hidden="true">*</span>
 							</Label>
 							<Input
-								id="streetAddress"
-								name="streetAddress"
+								id="street"
+								name="street"
 								placeholder="123 Main St"
 								className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-								defaultValue={state.defaultValues.streetAddress}
+								defaultValue={state.defaultValues.street}
 								disabled={pending}
-								aria-invalid={!!state.errors?.streetAddress}
-								aria-errormessage="error-streetAddress"
+								aria-invalid={!!state.errors?.street}
+								aria-errormessage="error-street"
 							/>
-							{state.errors?.streetAddress && (
-								<p
-									id="error-streetAddress"
-									className="text-destructive text-sm"
-								>
-									{state.errors.streetAddress}
+							{state.errors?.street && (
+								<p id="error-street" className="text-destructive text-sm">
+									{state.errors.street}
 								</p>
 							)}
 						</div>
