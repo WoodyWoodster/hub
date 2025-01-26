@@ -9,7 +9,7 @@ export const people = pgTable('people', {
 
 export const addresses = pgTable('addresses', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	streetAddress: varchar('street_address', { length: 255 }).notNull(),
+	street: varchar('street_address', { length: 255 }).notNull(),
 	city: varchar({ length: 100 }).notNull(),
 	state: varchar({ length: 2 }).notNull(),
 	zipCode: varchar('zip_code', { length: 10 }).notNull(),
