@@ -7,6 +7,7 @@ import {
 	ListUsersCommand,
 	type ListUsersCommandInput,
 	AdminCreateUserCommand,
+	AdminSetUserPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { err, ok, Result } from './types/result';
 
@@ -43,6 +44,21 @@ export const createUser = async (
 		const command = new AdminCreateUserCommand(params);
 		const result = await cognitoClient.send(command);
 		if (result.User) {
+			const setPermanentPasswordCommand = new AdminSetUserPasswordCommand({
+				UserPoolId: process.env.COGNITO_USER_POOL_ID,
+				Username: email,
+				Password: password,
+				Permanent: true,
+			});
+			const setPasswordResult = await cognitoClient.send(
+				setPermanentPasswordCommand,
+			);
+			if (
+				!setPasswordResult.$metadata.httpStatusCode ||
+				setPasswordResult.$metadata.httpStatusCode !== 200
+			) {
+				return err({ message: 'Failed to set permanent password' });
+			}
 			return ok(true);
 		} else {
 			return err({ message: 'Failed to create user' });
