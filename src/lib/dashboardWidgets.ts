@@ -1,5 +1,7 @@
 import { BriefcaseMedical, HeartPulse } from 'lucide-react';
 
+const today = new Date().toLocaleDateString();
+
 export const employeeWidgets = {
 	topWidgets: [
 		{
@@ -139,17 +141,17 @@ export const companyWidgets = {
 				upcomingFunding: {
 					title: 'Upcoming Funding',
 					amount: '$89,737.64',
-					updatedDate: '2025-02-28',
+					updatedDate: today,
 				},
 				dispersement: {
 					title: 'Dispersement Account Balance',
 					amount: '$52,311.29',
-					updatedDate: '2025-02-28',
+					updatedDate: today,
 				},
 				participation: {
 					title: 'AutoPay Participation',
 					percentage: '98%',
-					updatedDate: '2025-02-28',
+					updatedDate: today,
 				},
 			},
 		},
