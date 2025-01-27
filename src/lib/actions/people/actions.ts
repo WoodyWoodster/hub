@@ -2,8 +2,9 @@
 
 import { signOut } from '@/auth';
 import { db } from '@/db';
-import { addresses, people } from '@/db/schema';
+import { addresses, companyPeople, companies, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
+import { eq } from 'drizzle-orm';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -83,6 +84,23 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 			success: false,
 			errors: { form: 'An unexpected error occurred' },
 		};
+	}
+}
+
+export async function getCompaniesForPerson(personId: number) {
+	try {
+		const companiesForPerson = await db
+			.select({
+				companyId: companies.id,
+				companyName: companies.name,
+			})
+			.from(companyPeople)
+			.innerJoin(companies, eq(companyPeople.companyId, companies.id))
+			.where(eq(companyPeople.personId, personId));
+		return companiesForPerson;
+	} catch (error) {
+		console.error(error);
+		return null;
 	}
 }
 
