@@ -4,7 +4,6 @@ import { signOut } from '@/auth';
 import { db } from '@/db';
 import { addresses, companyPeople, companies, people } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
-import { UUID } from 'crypto';
 import { eq } from 'drizzle-orm';
 import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
@@ -87,7 +86,7 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 	}
 }
 
-export async function getCompaniesForPerson(personId: UUID) {
+export async function getCompaniesForPerson(personId: string) {
 	try {
 		const companiesForPerson = await db
 			.select({
