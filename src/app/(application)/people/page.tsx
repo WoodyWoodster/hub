@@ -13,6 +13,7 @@ const getPeople = unstable_cache(
 				email: people.email,
 				role: roles.name,
 				dateOfBirth: people.dateOfBirth,
+				hireDate: companyPeople.hireDate,
 			})
 			.from(people)
 			.leftJoin(companyPeople, eq(people.id, companyPeople.personId))
