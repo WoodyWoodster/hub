@@ -16,7 +16,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Access Database
 
-Currently, dev/test is using a shared db in [Neon](https://neon.tech). This will eventually change so dev uses the db on the devs machine. Regardless, the simplest way to connect to dbs in this project is to use the ```npx drizzle-kit studio``` command. This gives you an extremely user friendly interface into our db. You can also traverse relationships easier through this vs writing SQL and doing the joins by hand.
+Currently, dev/test is using a shared db in [Neon](https://neon.tech). This will eventually change so dev uses the db on the devs machine (and definitely feel free to do this on your own). Regardless, the simplest way to connect to dbs in this project is to use the ```npx drizzle-kit studio``` command. This gives you an extremely user friendly interface into our db. You can also traverse relationships easier through this vs writing SQL and doing the joins by hand.
 
 ## Learn More
 
