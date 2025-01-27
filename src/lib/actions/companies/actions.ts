@@ -84,7 +84,7 @@ export async function signUpCompanyAction(formData: FormData) {
 			const [externalAdminRole] = await tx
 				.select()
 				.from(roles)
-				.where(sql`name = 'external_admin'`);
+				.where(sql`name = 'Admin'`);
 
 			await tx.insert(companyPersonRoles).values({
 				companyPersonId: insertCompanyPerson.id,
