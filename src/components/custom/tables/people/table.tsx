@@ -37,7 +37,7 @@ import {
 import { Input } from '@/components/ui/input';
 
 interface Person {
-	id: number;
+	id: string;
 	fullName: string;
 	email: string;
 	role: string | null;

@@ -2,10 +2,17 @@
 
 import { signOut } from '@/auth';
 import { db } from '@/db';
-import { addresses, people } from '@/db/schema';
+import {
+	addresses,
+	companyPeople,
+	companies,
+	people,
+	roles,
+	companyPersonRoles,
+} from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
+import { revalidateTag, unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
 export async function addPersonAction(_prevState: unknown, formData: FormData) {
@@ -86,7 +93,46 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 	}
 }
 
+export const getPeople = unstable_cache(
+	async () => {
+		return await db
+			.select({
+				id: people.id,
+				fullName: people.fullName,
+				email: people.email,
+				role: roles.name,
+				dateOfBirth: people.dateOfBirth,
+				hireDate: companyPeople.hireDate,
+			})
+			.from(people)
+			.leftJoin(companyPeople, eq(people.id, companyPeople.personId))
+			.leftJoin(
+				companyPersonRoles,
+				eq(companyPeople.id, companyPersonRoles.companyPersonId),
+			)
+			.leftJoin(roles, eq(companyPersonRoles.roleId, roles.id));
+	},
+	['people'],
+	{ revalidate: 60, tags: ['people'] },
+);
+
+export async function getCompaniesForPerson(personId: string) {
+	try {
+		const companiesForPerson = await db
+			.select({
+				companyId: companies.id,
+				companyName: companies.name,
+			})
+			.from(companyPeople)
+			.innerJoin(companies, eq(companyPeople.companyId, companies.id))
+			.where(eq(companyPeople.personId, personId));
+		return companiesForPerson;
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+}
+
 export async function logOut() {
 	await signOut();
-	redirect('/login');
 }
