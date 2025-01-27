@@ -2,10 +2,17 @@
 
 import { signOut } from '@/auth';
 import { db } from '@/db';
-import { addresses, companyPeople, companies, people } from '@/db/schema';
+import {
+	addresses,
+	companyPeople,
+	companies,
+	people,
+	roles,
+	companyPersonRoles,
+} from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
 import { eq } from 'drizzle-orm';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
 export async function addPersonAction(_prevState: unknown, formData: FormData) {
@@ -85,6 +92,28 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		};
 	}
 }
+
+export const getPeople = unstable_cache(
+	async () => {
+		return await db
+			.select({
+				id: people.id,
+				fullName: people.fullName,
+				email: people.email,
+				role: roles.name,
+				dateOfBirth: people.dateOfBirth,
+			})
+			.from(people)
+			.leftJoin(companyPeople, eq(people.id, companyPeople.personId))
+			.leftJoin(
+				companyPersonRoles,
+				eq(companyPeople.id, companyPersonRoles.companyPersonId),
+			)
+			.leftJoin(roles, eq(companyPersonRoles.roleId, roles.id));
+	},
+	['people'],
+	{ revalidate: 60, tags: ['people'] },
+);
 
 export async function getCompaniesForPerson(personId: string) {
 	try {
