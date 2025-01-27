@@ -4,6 +4,7 @@ import { companyPeople, companyPersonRoles, people, roles } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
+// TODO: Change to getPeopleByCompanyId
 const getPeople = unstable_cache(
 	async () => {
 		return await db
