@@ -10,7 +10,7 @@ import {
 	AdminSetUserPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { err, ok, Result } from './types/result';
-import { people } from './db/schema';
+import { companyPeople, people } from './db/schema';
 import { db } from './db';
 import { eq } from 'drizzle-orm';
 
@@ -106,6 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			if (user) {
 				token.id = user.id as string;
 				token.personId = user.personId;
+				token.companyId = user.companyId;
 			}
 			return token;
 		},
@@ -113,6 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			if (session.user) {
 				session.user.id = token.id as string;
 				session.user.personId = token.personId as string;
+				session.user.companyId = token.companyId as string;
 			}
 			return session;
 		},
@@ -162,9 +164,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 							throw new Error('Person not found');
 						}
 
+						const [defaultCompany] = await db
+							.select()
+							.from(companyPeople)
+							.where(eq(companyPeople.personId, person.id));
+
+						if (!defaultCompany) {
+							throw new Error('Default company not found');
+						}
+
 						const user = {
 							id: username,
 							personId: person.id,
+							companyId: defaultCompany.companyId,
 							email: person.email,
 							name: person.fullName,
 							accessToken: response.AuthenticationResult.AccessToken,
