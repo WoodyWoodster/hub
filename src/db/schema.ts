@@ -64,6 +64,7 @@ export const companyPeople = pgTable(
 			.references(() => people.id)
 			.notNull(),
 		hireDate: date('hire_date'),
+		isDefault: boolean('is_default').notNull().default(false),
 		createdAt: timestamp('created_at').defaultNow(),
 		updatedAt: timestamp('updated_at', {
 			mode: 'date',
@@ -74,6 +75,9 @@ export const companyPeople = pgTable(
 	},
 	(table) => [
 		uniqueIndex('unique_company_people').on(table.companyId, table.personId),
+		uniqueIndex('unique_default_company_per_person')
+			.on(table.personId)
+			.where(sql`is_default = true`),
 	],
 );
 
