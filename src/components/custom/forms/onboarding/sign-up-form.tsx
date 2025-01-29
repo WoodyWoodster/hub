@@ -92,7 +92,7 @@ export function SignUpForm() {
 					Let&apos;s get your account setup!
 				</h2>
 			</div>
-			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
+			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -107,7 +107,7 @@ export function SignUpForm() {
 											control={form.control}
 											name="person.fullName"
 											render={({ field }) => (
-												<FormItem className="sm:col-span-3">
+												<FormItem className="sm:col-span-2">
 													<FormLabel>Full Name</FormLabel>
 													<FormControl>
 														<Input placeholder="John Doe" {...field} />
@@ -120,7 +120,7 @@ export function SignUpForm() {
 											control={form.control}
 											name="person.email"
 											render={({ field }) => (
-												<FormItem className="sm:col-span-3">
+												<FormItem className="sm:col-span-2">
 													<FormLabel>Email</FormLabel>
 													<FormControl>
 														<Input
@@ -128,6 +128,19 @@ export function SignUpForm() {
 															placeholder="john.doe@example.com"
 															{...field}
 														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="person.dateOfBirth"
+											render={({ field }) => (
+												<FormItem className="sm:col-span-2">
+													<FormLabel>Date of Birth</FormLabel>
+													<FormControl>
+														<Input type="date" {...field} />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -162,19 +175,6 @@ export function SignUpForm() {
 															placeholder="Confirm your password"
 															{...field}
 														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<FormField
-											control={form.control}
-											name="person.dateOfBirth"
-											render={({ field }) => (
-												<FormItem className="sm:col-span-3">
-													<FormLabel>Date of Birth</FormLabel>
-													<FormControl>
-														<Input type="date" {...field} />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
