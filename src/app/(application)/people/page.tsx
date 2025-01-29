@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { PeopleTable } from '@/components/custom/tables/people/table';
 import { getPeopleForCompany } from '@/lib/actions/people/actions';
+import { SessionProvider } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -15,7 +16,9 @@ export default async function PeoplePage() {
 	}
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
-			<PeopleTable people={people} />
+			<SessionProvider>
+				<PeopleTable people={people} />
+			</SessionProvider>
 		</Suspense>
 	);
 }
