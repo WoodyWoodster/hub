@@ -231,9 +231,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 													</SelectContent>
 												</Select>
 											</FormControl>
-											<FormMessage>
-												{form.formState.errors.state?.message}
-											</FormMessage>
+											<FormMessage />
 										</FormItem>
 									)}
 								/>
