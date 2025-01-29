@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { PeopleTable } from '@/components/custom/tables/people/table';
 import { getPeopleForCompany } from '@/lib/actions/people/actions';
+import { getExternalRoles } from '@/lib/queries/roles/queries';
 import { SessionProvider } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -14,10 +15,14 @@ export default async function PeoplePage() {
 	if (!people) {
 		return <div>Failed to load people</div>;
 	}
+	const roles = await getExternalRoles();
+	if (!roles) {
+		return <div>Failed to load roles</div>;
+	}
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
 			<SessionProvider>
-				<PeopleTable people={people} />
+				<PeopleTable people={people} roles={roles} />
 			</SessionProvider>
 		</Suspense>
 	);
