@@ -23,6 +23,19 @@ export const people = pgTable('people', {
 		.$onUpdate(() => new Date()),
 });
 
+export const peopleAddresses = pgTable('people_addresses', {
+	personId: uuid('person_id')
+		.references(() => people.id)
+		.notNull(),
+	addressId: uuid('address_id')
+		.references(() => addresses.id)
+		.notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
 export const addresses = pgTable('addresses', {
 	id: uuid('id')
 		.primaryKey()
