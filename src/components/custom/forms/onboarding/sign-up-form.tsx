@@ -301,7 +301,7 @@ export function SignUpForm() {
 												<FormItem className="sm:col-span-6">
 													<FormLabel>Street Address</FormLabel>
 													<FormControl>
-														<Input placeholder="12345 Straße" {...field} />
+														<Input placeholder="123 Main St" {...field} />
 													</FormControl>
 													<FormMessage />
 												</FormItem>

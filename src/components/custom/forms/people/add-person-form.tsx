@@ -22,6 +22,7 @@ import {
 	FormField,
 	FormItem,
 	FormLabel,
+	FormMessage,
 } from '@/components/ui/form';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
@@ -84,107 +85,72 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<CardContent className="flex flex-col gap-6">
 						<div className="space-y-4">
-							<h3 className="text-lg font-semibold">Personal Information</h3>
-							<div className="grid grid-cols-2 gap-4">
-								<div className="group/field grid gap-2">
+							<div>
+								<h3 className="text-lg leading-6 font-medium text-gray-900">
+									Personal Information
+								</h3>
+								<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
 									<FormField
 										control={form.control}
 										name="fullName"
 										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.fullName}
-											>
+											<FormItem className="sm:col-span-3">
 												<FormLabel>Full Name</FormLabel>
 												<FormControl>
-													<Input
-														id="fullName"
-														type="text"
-														placeholder="John Doe"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-														{...field}
-													/>
+													<Input placeholder="John Doe" {...field} />
 												</FormControl>
+												<FormMessage />
 											</FormItem>
 										)}
 									/>
-								</div>
-								<div className="group/field grid gap-2">
 									<FormField
 										control={form.control}
 										name="email"
 										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.email}
-											>
+											<FormItem className="sm:col-span-3">
 												<FormLabel>Email</FormLabel>
 												<FormControl>
 													<Input
-														id="email"
-														type="email"
 														placeholder="john.doe@example.com"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
 														{...field}
 													/>
 												</FormControl>
+												<FormMessage />
 											</FormItem>
 										)}
 									/>
-								</div>
-							</div>
 
-							<div className="grid grid-cols-3 gap-4">
-								<div className="group/field grid gap-2">
 									<FormField
 										control={form.control}
 										name="dateOfBirth"
 										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.hireDate}
-											>
+											<FormItem className="sm:col-span-2">
 												<FormLabel>Date of Birth</FormLabel>
 												<FormControl>
-													<Input
-														id="dateOfBirth"
-														type="date"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-														{...field}
-													/>
+													<Input type="date" {...field} />
 												</FormControl>
+												<FormMessage />
 											</FormItem>
 										)}
 									/>
-								</div>
-								<div className="group/field grid gap-2">
 									<FormField
 										control={form.control}
 										name="hireDate"
 										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.hireDate}
-											>
+											<FormItem className="sm:col-span-2">
 												<FormLabel>Hire Date</FormLabel>
 												<FormControl>
-													<Input
-														id="hireDate"
-														type="date"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-														{...field}
-													/>
+													<Input type="date" {...field} />
 												</FormControl>
+												<FormMessage />
 											</FormItem>
 										)}
 									/>
-								</div>
-								<div className="group/field grid gap-2">
 									<FormField
 										control={form.control}
 										name="roleId"
 										render={({ field }) => (
-											<FormItem className="group/field grid gap-2">
+											<FormItem className="sm:col-span-2">
 												<FormLabel>Role</FormLabel>
 												<FormControl>
 													<Select
@@ -203,6 +169,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 														</SelectContent>
 													</Select>
 												</FormControl>
+												<FormMessage />
 											</FormItem>
 										)}
 									/>
@@ -210,109 +177,79 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 							</div>
 						</div>
 
-						<div className="space-y-4">
-							<h3 className="text-lg font-semibold">Home Address</h3>
-							<div className="group/field grid gap-2">
+						<div>
+							<h3 className="text-lg leading-6 font-medium text-gray-900">
+								Home Address
+							</h3>
+							<div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
 								<FormField
 									control={form.control}
 									name="street"
 									render={({ field }) => (
-										<FormItem
-											className="group/field grid gap-2"
-											data-invalid={!!form.formState.errors.street}
-										>
+										<FormItem className="sm:col-span-6">
 											<FormLabel>Street Address</FormLabel>
 											<FormControl>
-												<Input
-													id="street"
-													type="text"
-													placeholder="123 Main St"
-													className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-													{...field}
-												/>
+												<Input placeholder="123 Main St" {...field} />
 											</FormControl>
+											<FormMessage />
 										</FormItem>
 									)}
 								/>
-							</div>
-							<div className="grid grid-cols-3 gap-4">
-								<div className="group/field grid gap-2">
-									<FormField
-										control={form.control}
-										name="city"
-										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.city}
-											>
-												<FormLabel>City</FormLabel>
-												<FormControl>
-													<Input
-														id="city"
-														type="text"
-														placeholder="Anytown"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-														{...field}
-													/>
-												</FormControl>
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="group/field grid gap-2">
-									<FormField
-										control={form.control}
-										name="state"
-										render={({ field }) => (
-											<FormItem className="group/field grid gap-2">
-												<FormLabel>State</FormLabel>
-												<FormControl>
-													<Select
-														onValueChange={field.onChange}
-														defaultValue={field.value}
-													>
-														<SelectTrigger className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive">
-															<SelectValue placeholder="Select a state" />
-														</SelectTrigger>
-														<SelectContent>
-															{usStates.map((state) => (
-																<SelectItem
-																	key={state.value}
-																	value={state.value}
-																>
-																	{state.label}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-												</FormControl>
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="group/field">
-									<FormField
-										control={form.control}
-										name="zipCode"
-										render={({ field }) => (
-											<FormItem
-												className="group/field grid gap-2"
-												data-invalid={!!form.formState.errors.zipCode}
-											>
-												<FormLabel>ZIP Code</FormLabel>
-												<FormControl>
-													<Input
-														id="zipCode"
-														type="text"
-														placeholder="12345"
-														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
-														{...field}
-													/>
-												</FormControl>
-											</FormItem>
-										)}
-									/>
-								</div>
+								<FormField
+									control={form.control}
+									name="city"
+									render={({ field }) => (
+										<FormItem className="sm:col-span-2">
+											<FormLabel>City</FormLabel>
+											<FormControl>
+												<Input placeholder="Richardson" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="state"
+									render={({ field }) => (
+										<FormItem className="sm:col-span-2">
+											<FormLabel>State</FormLabel>
+											<FormControl>
+												<Select
+													onValueChange={field.onChange}
+													defaultValue={field.value}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Select a state" />
+													</SelectTrigger>
+													<SelectContent>
+														{usStates.map((state) => (
+															<SelectItem key={state.value} value={state.value}>
+																{state.label}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+											</FormControl>
+											<FormMessage>
+												{form.formState.errors.state?.message}
+											</FormMessage>
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="zipCode"
+									render={({ field }) => (
+										<FormItem className="sm:col-span-2">
+											<FormLabel>ZIP Code</FormLabel>
+											<FormControl>
+												<Input placeholder="12345" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 							</div>
 						</div>
 					</CardContent>
