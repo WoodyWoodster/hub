@@ -12,7 +12,7 @@ import {
 	peopleAddresses,
 } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
