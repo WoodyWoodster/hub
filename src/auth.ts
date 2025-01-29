@@ -10,18 +10,13 @@ import {
 	AdminSetUserPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { err, ok, Result } from './types/result';
+import { companyPeople, people } from './db/schema';
+import { db } from './db';
+import { eq } from 'drizzle-orm';
 
 const cognitoClient = new CognitoIdentityProviderClient({
 	region: process.env.AWS_REGION,
 });
-
-interface User {
-	id: string;
-	email: string;
-	name: string;
-	accessToken: string | undefined;
-	refreshToken: string | undefined;
-}
 
 interface CreateUserError {
 	message: string;
@@ -107,6 +102,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 		authorized: async ({ auth }) => {
 			return !!auth;
 		},
+		async jwt({ token, user }) {
+			if (user) {
+				token.id = user.id as string;
+				token.personId = user.personId;
+				token.companyId = user.companyId;
+			}
+			return token;
+		},
+		async session({ session, token }) {
+			if (session.user) {
+				session.user.id = token.id as string;
+				session.user.personId = token.personId as string;
+				session.user.companyId = token.companyId as string;
+			}
+			return session;
+		},
 	},
 	providers: [
 		CredentialsProvider({
@@ -143,10 +154,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 					const response = await cognitoClient.send(command);
 
 					if (response.AuthenticationResult) {
-						const user: User = {
+						const [person] = await db
+							.select()
+							.from(people)
+							.where(eq(people.email, credentials.email as string))
+							.limit(1);
+
+						if (!person) {
+							throw new Error('Person not found');
+						}
+
+						const [defaultCompany] = await db
+							.select()
+							.from(companyPeople)
+							.where(eq(companyPeople.personId, person.id));
+
+						if (!defaultCompany) {
+							throw new Error('Default company not found');
+						}
+
+						const user = {
 							id: username,
-							email: credentials.email as string,
-							name: credentials.email as string,
+							personId: person.id,
+							companyId: defaultCompany.companyId,
+							email: person.email,
+							name: person.fullName,
 							accessToken: response.AuthenticationResult.AccessToken,
 							refreshToken: response.AuthenticationResult.RefreshToken,
 						};

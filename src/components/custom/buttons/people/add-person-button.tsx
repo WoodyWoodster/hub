@@ -14,8 +14,14 @@ import {
 } from '@/components/ui/drawer';
 import { AddPersonForm } from '@/components/custom/forms/people/add-person-form';
 import { Plus } from 'lucide-react';
+import { Role } from '../../tables/people/table';
+import { FC } from 'react';
 
-export function AddPersonButton() {
+interface AddPersonButtonProps {
+	roles: Role[];
+}
+
+export const AddPersonButton: FC<AddPersonButtonProps> = ({ roles }) => {
 	const [open, setOpen] = React.useState(false);
 
 	return (
@@ -33,7 +39,7 @@ export function AddPersonButton() {
 					</DrawerDescription>
 				</DrawerHeader>
 				<div className="p-4 pb-0">
-					<AddPersonForm onSuccess={() => setOpen(false)} />
+					<AddPersonForm onSuccess={() => setOpen(false)} roles={roles} />
 				</div>
 				<DrawerFooter>
 					<DrawerClose asChild>
@@ -43,4 +49,4 @@ export function AddPersonButton() {
 			</DrawerContent>
 		</Drawer>
 	);
-}
+};

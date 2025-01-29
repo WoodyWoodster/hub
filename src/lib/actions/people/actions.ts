@@ -9,13 +9,14 @@ import {
 	people,
 	roles,
 	companyPersonRoles,
+	peopleAddresses,
 } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
 import { eq } from 'drizzle-orm';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
-export async function addPersonAction(_prevState: unknown, formData: FormData) {
+export async function addPersonAction(formData: FormData) {
 	const defaultValues = z
 		.record(z.string(), z.string())
 		.parse(Object.fromEntries(formData.entries()));
@@ -23,37 +24,62 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 	try {
 		const data = addPersonSchema.parse(Object.fromEntries(formData));
 
-		const insertPersonData: typeof people.$inferInsert = {
+		const validatedPerson: typeof people.$inferInsert = {
 			email: data.email,
 			fullName: data.fullName,
 			dateOfBirth: data.dateOfBirth,
 		};
 
-		const [insertedPerson] = await db
-			.insert(people)
-			.values(insertPersonData)
-			.returning({ id: people.id });
+		const validatedAddress: typeof addresses.$inferInsert = {
+			street: data.street,
+			city: data.city,
+			state: data.state,
+			zipCode: data.zipCode,
+		};
 
-		if (!insertedPerson) {
-			throw new Error('Failed to insert person');
+		try {
+			await db.transaction(async (tx) => {
+				const [insertedPerson] = await tx
+					.insert(people)
+					.values(validatedPerson)
+					.returning({ id: people.id });
+
+				const [insertedAddress] = await tx
+					.insert(addresses)
+					.values(validatedAddress)
+					.returning({ id: addresses.id });
+
+				await tx.insert(peopleAddresses).values({
+					personId: insertedPerson.id,
+					addressId: insertedAddress.id,
+				});
+
+				const [insertedCompanyPerson] = await tx
+					.insert(companyPeople)
+					.values({
+						personId: insertedPerson.id,
+						companyId: data.companyId,
+						hireDate: data.hireDate,
+					})
+					.returning({ id: companyPeople.id });
+
+				await tx.insert(companyPersonRoles).values({
+					companyPersonId: insertedCompanyPerson.id,
+					roleId: data.roleId,
+				});
+
+				// TODO: Create a new user in the Cognito user pool
+			});
+		} catch (error) {
+			console.error(error);
+			return {
+				defaultValues,
+				success: false,
+				errors: { form: 'An unexpected error occurred' },
+			};
 		}
 
-		const [insertedAddress] = await db
-			.insert(addresses)
-			.values({
-				street: data.street,
-				city: data.city,
-				state: data.state,
-				zipCode: data.zipCode,
-			})
-			.returning({ id: addresses.id });
-
-		if (!insertedAddress) {
-			throw new Error('Failed to insert address');
-		}
-
-		console.log(data);
-		revalidateTag('people');
+		revalidatePath('/people');
 
 		return {
 			defaultValues: {
@@ -71,12 +97,7 @@ export async function addPersonAction(_prevState: unknown, formData: FormData) {
 		};
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			const fieldErrors = Object.fromEntries(
-				Object.entries(error.formErrors.fieldErrors).map(([key, value]) => [
-					key,
-					value?.join(', '),
-				]),
-			);
+			const fieldErrors = error.flatten().fieldErrors;
 			return {
 				defaultValues,
 				success: false,
@@ -102,6 +123,7 @@ export const getPeople = unstable_cache(
 				email: people.email,
 				role: roles.name,
 				dateOfBirth: people.dateOfBirth,
+				hireDate: companyPeople.hireDate,
 			})
 			.from(people)
 			.leftJoin(companyPeople, eq(people.id, companyPeople.personId))
@@ -114,6 +136,31 @@ export const getPeople = unstable_cache(
 	['people'],
 	{ revalidate: 60, tags: ['people'] },
 );
+
+/**
+ *
+ * @param companyId The id of the company to get people for
+ * @returns A list of people for the company
+ */
+export const getPeopleForCompany = async (companyId: string) => {
+	return await db
+		.select({
+			id: people.id,
+			fullName: people.fullName,
+			email: people.email,
+			role: roles.name,
+			dateOfBirth: people.dateOfBirth,
+			hireDate: companyPeople.hireDate,
+		})
+		.from(people)
+		.innerJoin(companyPeople, eq(people.id, companyPeople.personId))
+		.innerJoin(
+			companyPersonRoles,
+			eq(companyPeople.id, companyPersonRoles.companyPersonId),
+		)
+		.innerJoin(roles, eq(companyPersonRoles.roleId, roles.id))
+		.where(eq(companyPeople.companyId, companyId));
+};
 
 export async function getCompaniesForPerson(personId: string) {
 	try {

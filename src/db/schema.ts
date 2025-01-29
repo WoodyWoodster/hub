@@ -19,8 +19,21 @@ export const people = pgTable('people', {
 	dateOfBirth: date('date_of_birth').notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const peopleAddresses = pgTable('people_addresses', {
+	personId: uuid('person_id')
+		.references(() => people.id)
+		.notNull(),
+	addressId: uuid('address_id')
+		.references(() => addresses.id)
+		.notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const addresses = pgTable('addresses', {
@@ -33,8 +46,8 @@ export const addresses = pgTable('addresses', {
 	zipCode: varchar('zip_code', { length: 10 }).notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const companies = pgTable('companies', {
@@ -47,8 +60,8 @@ export const companies = pgTable('companies', {
 	size: varchar({ length: 50 }).notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const companyPeople = pgTable(
@@ -64,6 +77,7 @@ export const companyPeople = pgTable(
 			.references(() => people.id)
 			.notNull(),
 		hireDate: date('hire_date'),
+		isDefault: boolean('is_default').notNull().default(false),
 		createdAt: timestamp('created_at').defaultNow(),
 		updatedAt: timestamp('updated_at', {
 			mode: 'date',
@@ -74,6 +88,9 @@ export const companyPeople = pgTable(
 	},
 	(table) => [
 		uniqueIndex('unique_company_people').on(table.companyId, table.personId),
+		uniqueIndex('unique_default_company_per_person')
+			.on(table.personId)
+			.where(sql`is_default = true`),
 	],
 );
 
@@ -86,8 +103,8 @@ export const companyAddresses = pgTable('company_addresses', {
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const roles = pgTable('roles', {
@@ -99,8 +116,8 @@ export const roles = pgTable('roles', {
 	isInternal: boolean('is_internal').notNull().default(false),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const permissions = pgTable('permissions', {
@@ -111,8 +128,8 @@ export const permissions = pgTable('permissions', {
 	description: text('description'),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
-		.$onUpdate(() => new Date())
-		.defaultNow(),
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 });
 
 export const rolePermissions = pgTable(

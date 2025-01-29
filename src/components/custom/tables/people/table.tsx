@@ -44,8 +44,14 @@ interface Person {
 	dateOfBirth: string;
 }
 
+export interface Role {
+	id: string;
+	name: string;
+}
+
 interface PeopleTableProps {
 	people: Person[];
+	roles: Role[];
 }
 
 export const columns: ColumnDef<Person>[] = [
@@ -138,7 +144,7 @@ export const columns: ColumnDef<Person>[] = [
 	},
 ];
 
-export const PeopleTable: FC<PeopleTableProps> = ({ people }) => {
+export const PeopleTable: FC<PeopleTableProps> = ({ people, roles }) => {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -176,7 +182,7 @@ export const PeopleTable: FC<PeopleTableProps> = ({ people }) => {
 						}
 						className="max-w-sm bg-white"
 					/>
-					<AddPersonButton />
+					<AddPersonButton roles={roles} />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="secondary" className="ml-auto">
