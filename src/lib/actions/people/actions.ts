@@ -63,15 +63,9 @@ export async function addPersonAction(formData: FormData) {
 					})
 					.returning({ id: companyPeople.id });
 
-				// TODO: Should use the role from the form data
-				const [employeeRole] = await tx
-					.select()
-					.from(roles)
-					.where(sql`name = 'Employee'`);
-
 				await tx.insert(companyPersonRoles).values({
 					companyPersonId: insertedCompanyPerson.id,
-					roleId: employeeRole.id,
+					roleId: data.roleId,
 				});
 
 				// TODO: Create a new user in the Cognito user pool

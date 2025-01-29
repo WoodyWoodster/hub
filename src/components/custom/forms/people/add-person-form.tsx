@@ -27,12 +27,14 @@ import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 import { addPersonAction } from '@/lib/actions/people/actions';
 import { FC } from 'react';
+import { Role } from '../../tables/people/table';
 
 interface AddPersonFormProps {
 	onSuccess: () => void;
+	roles: Role[];
 }
 
-export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
+export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 	const session = useSession();
 	const form = useForm<z.infer<typeof addPersonSchema>>({
 		resolver: zodResolver(addPersonSchema),
@@ -41,6 +43,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 			email: '',
 			dateOfBirth: '',
 			hireDate: '',
+			roleId: '',
 			street: '',
 			city: '',
 			state: '',
@@ -131,7 +134,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 								</div>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-3 gap-4">
 								<div className="group/field grid gap-2">
 									<FormField
 										control={form.control}
@@ -171,6 +174,34 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 														className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive"
 														{...field}
 													/>
+												</FormControl>
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="group/field grid gap-2">
+									<FormField
+										control={form.control}
+										name="roleId"
+										render={({ field }) => (
+											<FormItem className="group/field grid gap-2">
+												<FormLabel>Role</FormLabel>
+												<FormControl>
+													<Select
+														onValueChange={field.onChange}
+														defaultValue={field.value}
+													>
+														<SelectTrigger className="group-data-[invalid=true]/field:border-destructive group-data-[invalid=true]/field:focus-visible:ring-destructive">
+															<SelectValue placeholder="Select a role" />
+														</SelectTrigger>
+														<SelectContent>
+															{roles.map((role) => (
+																<SelectItem key={role.id} value={role.id}>
+																	{role.name}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
 												</FormControl>
 											</FormItem>
 										)}

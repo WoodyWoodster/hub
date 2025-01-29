@@ -12,6 +12,7 @@ export const addPersonSchema = z.object({
 	hireDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
 		message: 'Invalid hire date',
 	}),
+	roleId: z.string().uuid({ message: 'Invalid role ID' }),
 	street: z
 		.string()
 		.min(5, { message: 'Street address must be at least 5 characters' })
