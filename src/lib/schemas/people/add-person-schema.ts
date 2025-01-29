@@ -26,4 +26,6 @@ export const addPersonSchema = z.object({
 	zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, {
 		message: 'Invalid ZIP code format',
 	}),
+	companyId: z.string().uuid({ message: 'Invalid company ID' }),
+	createdBy: z.string().uuid({ message: 'Invalid person ID' }),
 });
