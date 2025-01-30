@@ -20,7 +20,7 @@ export default async function PeoplePage() {
 		return <div>Failed to load roles</div>;
 	}
 	return (
-		<Suspense fallback={<div>Loading...</div>}>
+		<Suspense>
 			<SessionProvider>
 				<PeopleTable people={people} roles={roles} />
 			</SessionProvider>
