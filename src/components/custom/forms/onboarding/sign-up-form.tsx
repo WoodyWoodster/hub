@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/hooks/use-toast';
+import { track } from '@vercel/analytics/react';
 
 export function SignUpForm() {
 	const router = useRouter();
@@ -76,6 +77,9 @@ export function SignUpForm() {
 		} else if (result.success) {
 			// TODO: Should eventually just sign in the user
 			// and redirect to next page of onboarding
+			track('Signed Up', {
+				companyName: data.company.name,
+			});
 			router.push('/dashboard');
 		}
 

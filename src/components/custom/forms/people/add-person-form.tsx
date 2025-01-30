@@ -29,6 +29,7 @@ import { useSession } from 'next-auth/react';
 import { addPersonAction } from '@/lib/actions/people/actions';
 import { FC } from 'react';
 import { Role } from '../../tables/people/table';
+import { track } from '@vercel/analytics/react';
 
 interface AddPersonFormProps {
 	onSuccess: () => void;
@@ -70,6 +71,12 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 			});
 			return;
 		}
+
+		track('Added person', {
+			companyId: values.companyId,
+			email: values.email,
+			role: values.roleId,
+		});
 
 		onSuccess();
 

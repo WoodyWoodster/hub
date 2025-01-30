@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { track } from '@vercel/analytics/react';
 
 export default function LogInForm() {
 	const [email, setEmail] = useState('');
@@ -34,6 +35,7 @@ export default function LogInForm() {
 		if (result?.error) {
 			setError('Invalid email or password');
 		} else {
+			track('Logged in', { email });
 			router.push('/');
 		}
 	};
