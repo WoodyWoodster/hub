@@ -38,9 +38,7 @@ export const AddPersonButton: FC<AddPersonButtonProps> = ({ roles }) => {
 						Fill out the form to add a new person to HRA Hub.
 					</DrawerDescription>
 				</DrawerHeader>
-				<div className="p-4 pb-0">
-					<AddPersonForm onSuccess={() => setOpen(false)} roles={roles} />
-				</div>
+				<AddPersonForm onSuccess={() => setOpen(false)} roles={roles} />
 				<DrawerFooter>
 					<DrawerClose asChild>
 						<Button variant="outline">Cancel</Button>
