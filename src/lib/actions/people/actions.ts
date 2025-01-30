@@ -12,7 +12,7 @@ import {
 	peopleAddresses,
 } from '@/db/schema';
 import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
@@ -54,19 +54,42 @@ export async function addPersonAction(formData: FormData) {
 					addressId: insertedAddress.id,
 				});
 
-				const [insertedCompanyPerson] = await tx
-					.insert(companyPeople)
-					.values({
-						personId: insertedPerson.id,
-						companyId: data.companyId,
-						hireDate: data.hireDate,
+				const companyPeopleCount = await tx
+					.select({
+						count: count(),
 					})
-					.returning({ id: companyPeople.id });
+					.from(companyPeople);
 
-				await tx.insert(companyPersonRoles).values({
-					companyPersonId: insertedCompanyPerson.id,
-					roleId: data.roleId,
-				});
+				if (companyPeopleCount[0].count) {
+					const [insertedCompanyPerson] = await tx
+						.insert(companyPeople)
+						.values({
+							personId: insertedPerson.id,
+							companyId: data.companyId,
+							hireDate: data.hireDate,
+							isDefault: true,
+						})
+						.returning({ id: companyPeople.id });
+
+					await tx.insert(companyPersonRoles).values({
+						companyPersonId: insertedCompanyPerson.id,
+						roleId: data.roleId,
+					});
+				} else {
+					const [insertedCompanyPerson] = await tx
+						.insert(companyPeople)
+						.values({
+							personId: insertedPerson.id,
+							companyId: data.companyId,
+							hireDate: data.hireDate,
+						})
+						.returning({ id: companyPeople.id });
+
+					await tx.insert(companyPersonRoles).values({
+						companyPersonId: insertedCompanyPerson.id,
+						roleId: data.roleId,
+					});
+				}
 
 				// TODO: Create a new user in the Cognito user pool
 			});
