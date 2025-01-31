@@ -34,10 +34,11 @@ jobs:
 
       - name: Run Migrations
         run: |
-          npx drizzle-kit push --force
+          npm install
+          npm install -g drizzle-orm drizzle-kit pg
+          drizzle-kit push --force
         env:
           DATABASE_URL: ${{ steps.create-branch.outputs.db_url_with_pooler }}
-
           
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
