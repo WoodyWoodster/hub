@@ -63,7 +63,7 @@ jobs:
             Vercel Preview URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
             Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
 
-  playwright-tests:
+  run-regression-tests-against-preview:
     needs: deploy-preview
     runs-on: ubuntu-latest
     steps:
