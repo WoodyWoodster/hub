@@ -3,11 +3,11 @@ name: Deploy Preview
 on: [pull_request]
 
 env:
-  PG_USERNAME: ${{ secrets.PG_USERNAME }} 
-  PG_DATABASE: ${{ secrets.PG_DATABASE }} 
-  GH_TOKEN: ${{ secrets.GH_TOKEN }} 
-  NEON_API_KEY: ${{ secrets.NEON_API_KEY }} 
-  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }} 
+  PG_USERNAME: ${{ secrets.PG_USERNAME }}
+  PG_DATABASE: ${{ secrets.PG_DATABASE }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
           drizzle-kit push --force
         env:
           DATABASE_URL: ${{ steps.create-branch.outputs.db_url_with_pooler }}
-          
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
