@@ -160,37 +160,12 @@ export const getPeople = unstable_cache(
 	{ revalidate: 60, tags: ['people'] },
 );
 
-/**
- *
- * @param companyId The id of the company to get people for
- * @returns A list of people for the company
- */
-export const getPeopleForCompany = async (companyId: string) => {
-	return await db
-		.select({
-			id: people.id,
-			fullName: people.fullName,
-			email: people.email,
-			role: roles.name,
-			dateOfBirth: people.dateOfBirth,
-			hireDate: companyPeople.hireDate,
-		})
-		.from(people)
-		.innerJoin(companyPeople, eq(people.id, companyPeople.personId))
-		.innerJoin(
-			companyPersonRoles,
-			eq(companyPeople.id, companyPersonRoles.companyPersonId),
-		)
-		.innerJoin(roles, eq(companyPersonRoles.roleId, roles.id))
-		.where(eq(companyPeople.companyId, companyId));
-};
-
 export async function getCompaniesForPerson(personId: string) {
 	try {
 		const companiesForPerson = await db
 			.select({
-				companyId: companies.id,
-				companyName: companies.name,
+				id: companies.id,
+				name: companies.name,
 			})
 			.from(companyPeople)
 			.innerJoin(companies, eq(companyPeople.companyId, companies.id))
