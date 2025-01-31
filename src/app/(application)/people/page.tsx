@@ -1,8 +1,9 @@
 import { auth } from '@/auth';
 import { PeopleTable } from '@/components/custom/tables/people/table';
-import { getPeopleForCompany } from '@/lib/actions/people/actions';
-import { getExternalRoles } from '@/lib/queries/roles/queries';
-import { SessionProvider } from 'next-auth/react';
+import {
+	getExternalRoles,
+	getPeopleForCompany,
+} from '@/lib/queries/roles/queries';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -21,9 +22,7 @@ export default async function PeoplePage() {
 	}
 	return (
 		<Suspense>
-			<SessionProvider>
-				<PeopleTable people={people} roles={roles} />
-			</SessionProvider>
+			<PeopleTable people={people} roles={roles} />
 		</Suspense>
 	);
 }
