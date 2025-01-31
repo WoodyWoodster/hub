@@ -2,12 +2,9 @@ import {
 	BookOpen,
 	Bot,
 	Building2,
-	Command,
 	DollarSign,
-	GalleryVerticalEnd,
 	LayoutDashboardIcon,
 	Library,
-	Map,
 	MessageCircleQuestion,
 	Settings,
 	SquareTerminal,
@@ -16,28 +13,6 @@ import {
 } from 'lucide-react';
 
 export const navItems = {
-	user: {
-		name: 'Hostile',
-		email: 'hostile@takecommandhealth.com',
-		avatar: '/avatars/shadcn.jpg',
-	},
-	teams: [
-		{
-			name: 'Take Command Health',
-			logo: GalleryVerticalEnd,
-			plan: 'Professional',
-		},
-		{
-			name: 'Goodfolks, LLC',
-			logo: Command,
-			plan: 'Free',
-		},
-		{
-			name: 'Acme, Inc.',
-			logo: Map,
-			plan: 'Free',
-		},
-	],
 	employee: [
 		{
 			title: 'Dashboard',
