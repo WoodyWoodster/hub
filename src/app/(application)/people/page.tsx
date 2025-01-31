@@ -8,7 +8,6 @@ import { Suspense } from 'react';
 
 export default async function PeoplePage() {
 	const session = await auth();
-  // Comment to trigger PR
 	if (!session) {
 		redirect('/login');
 	}
