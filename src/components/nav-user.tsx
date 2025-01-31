@@ -1,6 +1,12 @@
 'use client';
 
-import { Building2, ChevronsUpDown, LogOut, User } from 'lucide-react';
+import {
+	Building,
+	Building2,
+	ChevronsUpDown,
+	LogOut,
+	User,
+} from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,25 +26,37 @@ import {
 } from '@/components/ui/sidebar';
 import React from 'react';
 import { LogOutButton } from './custom/buttons/people/log-out-button';
+import { useSession } from 'next-auth/react';
+import { getCompaniesForPerson } from '@/lib/actions/people/actions';
+import { useQuery } from '@tanstack/react-query';
 
-export function NavUser({
-	user,
-	teams,
-}: {
-	user: {
-		name: string;
-		email: string;
-		avatar: string;
-	};
-	teams: {
-		name: string;
-		logo: React.ElementType;
-	}[];
-}) {
+export function NavUser() {
 	const { isMobile } = useSidebar();
-	const [activeTeam, setActiveTeam] = React.useState(
-		teams.length > 0 ? teams[0] : null,
-	);
+	const [activeCompany, setActiveCompany] = React.useState({});
+	const session = useSession();
+	const user = {
+		id: session?.data?.user?.personId as string,
+		name: session?.data?.user?.name as string,
+		email: session?.data?.user?.email as string,
+		image: session?.data?.user?.image as string,
+		initials: session?.data?.user?.name
+			?.split(' ')
+			.map((word) => word.charAt(0))
+			.join(''),
+	};
+	// TODO: Consider moving this out of the component
+	const {
+		data: companies,
+		isLoading,
+		error,
+	} = useQuery({
+		queryKey: ['companies', user.id],
+		queryFn: () => getCompaniesForPerson(user.id),
+		enabled: !!user.id,
+	});
+
+	if (isLoading) return <div>Loading...</div>;
+	if (error) return <div>Error loading companies</div>;
 
 	return (
 		<SidebarMenu>
@@ -50,8 +68,10 @@ export function NavUser({
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarImage src={user.avatar} alt={user.name} />
-								<AvatarFallback className="rounded-lg">H</AvatarFallback>
+								<AvatarImage src={user.image} alt={user.name} />
+								<AvatarFallback className="rounded-lg">
+									{user.initials}
+								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-semibold">{user.name}</span>
@@ -62,7 +82,7 @@ export function NavUser({
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
 						className={`${
-							activeTeam
+							activeCompany
 								? 'w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
 								: 'w-0'
 						} min-w-56 rounded-lg`}
@@ -73,8 +93,10 @@ export function NavUser({
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
-									<AvatarImage src={user.avatar} alt={user.name} />
-									<AvatarFallback className="rounded-lg">H</AvatarFallback>
+									<AvatarImage src={user.image} alt={user.name} />
+									<AvatarFallback className="rounded-lg">
+										{user.initials}
+									</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-semibold">{user.name}</span>
@@ -95,19 +117,19 @@ export function NavUser({
 						</DropdownMenuGroup>
 
 						<DropdownMenuSeparator />
-						<DropdownMenuLabel className="text-xs text-muted-foreground">
+						<DropdownMenuLabel className="text-muted-foreground text-xs">
 							Companies
 						</DropdownMenuLabel>
-						{teams.map((team) => (
+						{companies?.map((company) => (
 							<DropdownMenuItem
-								key={team.name}
-								onClick={() => setActiveTeam(team)}
+								key={company.name}
+								onClick={() => setActiveCompany(company)}
 								className="gap-2 p-2"
 							>
 								<div className="flex size-6 items-center justify-center rounded-sm border">
-									<team.logo className="size-4 shrink-0" />
+									<Building className="size-4" />
 								</div>
-								{team.name}
+								{company.name}
 							</DropdownMenuItem>
 						))}
 						<DropdownMenuSeparator />
