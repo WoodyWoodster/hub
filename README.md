@@ -29,3 +29,4 @@ To learn more about the tech powering this, take a look at the following resourc
 - [Neon](https://neon.tech) - Database provider
 - [Vercel](https://vercel.com) - Hosting provider
 - [Shadcn/ui](https://ui.shadcn.com/) - Component library
+- [Playwright](https://playwright.dev/) - End-to-end testing
