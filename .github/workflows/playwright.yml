@@ -20,9 +20,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: |
-          BASE_URL=https://hub-${{ github.head_ref }}-woodywoodsters-projects.vercel.app
-          npx playwright test --base-url=$BASE_URL
+        run: npx playwright test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
