@@ -28,3 +28,4 @@ To learn more about the tech powering this, take a look at the following resourc
 - [Drizzle Studio](https://orm.drizzle.team/docs/drizzle-kit-studio) - The easiest way to interact with db
 - [Neon](https://neon.tech) - Database provider
 - [Vercel](https://vercel.com) - Hosting provider
+- [Shadcn/ui](https://ui.shadcn.com/) - Component library
