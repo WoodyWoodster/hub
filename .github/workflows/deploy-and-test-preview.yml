@@ -79,7 +79,7 @@ jobs:
         run: |
           echo "Running Playwright tests against $BASE_URL"
           BASE_URL=${{ needs.deploy-preview.outputs.preview_url }}
-          npx playwright test --base-url=$BASE_URL
+          npx playwright test
         env:
           BASE_URL: ${{ needs.deploy-preview.outputs.preview_url }}
       - uses: actions/upload-artifact@v4
