@@ -58,6 +58,7 @@ export const companies = pgTable('companies', {
 	website: varchar({ length: 255 }),
 	industry: varchar({ length: 50 }).notNull(),
 	size: varchar({ length: 50 }).notNull(),
+	stripeCustomerId: varchar('stripe_customer_id'),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
 		.defaultNow()
