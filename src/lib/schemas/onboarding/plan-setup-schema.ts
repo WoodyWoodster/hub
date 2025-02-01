@@ -6,12 +6,12 @@ export const planSetupSchema = z.object({
 			startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
 				message: 'Invalid start date',
 			}),
-			eligibleEmployees: z.number().min(1, {
-				message: 'Must have at least one eligible employee',
-			}),
-			participatingEmployees: z.number().min(1, {
-				message: 'Must have at least one participating employee',
-			}),
+			eligibleEmployees: z
+				.string()
+				.min(1, 'Please enter the number of eligible employees'),
+			participatingEmployees: z
+				.string()
+				.min(1, 'Please enter the number of participating employees'),
 			autopay: z.boolean(),
 		})
 		.refine((data) => data.participatingEmployees <= data.eligibleEmployees, {
