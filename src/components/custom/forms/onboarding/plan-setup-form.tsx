@@ -31,7 +31,6 @@ import {
 import { planSetupSchema } from '@/lib/schemas/onboarding/plan-setup-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -340,12 +339,9 @@ export function PlanSetupForm() {
 									</div>
 								)}
 							</div>
-							<div className="flex justify-between">
-								<Button variant="outline" type="button">
-									<Link href="/sign-up">Back</Link>
-								</Button>
-								<Button type="submit">Continue</Button>
-							</div>
+							<Button className="w-full" type="submit">
+								Continue
+							</Button>
 						</form>
 					</Form>
 				</div>
