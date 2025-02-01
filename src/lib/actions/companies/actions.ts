@@ -15,7 +15,8 @@ import {
 } from '@/db/schema';
 import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
 import { isErr } from '@/types/result';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { createStripeCustomer } from '../stripe/actions';
 
 export async function signUpCompanyAction(formData: FormData) {
 	console.log('formData', formData);
@@ -52,6 +53,7 @@ export async function signUpCompanyAction(formData: FormData) {
 	console.log('address', address);
 
 	let userAttributes = {};
+	let companyId = '';
 
 	try {
 		await db.transaction(async (tx) => {
@@ -117,6 +119,7 @@ export async function signUpCompanyAction(formData: FormData) {
 					},
 				]),
 			};
+			companyId = insertedCompany.id;
 		});
 
 		const result = await createUser(
@@ -128,6 +131,18 @@ export async function signUpCompanyAction(formData: FormData) {
 		if (isErr(result)) {
 			return { error: result.error };
 		}
+
+		const stripeCustomer = await createStripeCustomer(
+			person.email,
+			company.name,
+		);
+
+		await db
+			.update(companies)
+			.set({
+				stripeCustomerId: stripeCustomer.id,
+			})
+			.where(eq(companies.id, companyId));
 
 		return { success: true };
 	} catch (error) {
