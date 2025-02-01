@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -21,10 +21,13 @@ export default function LogInForm() {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError('');
+
+		const callbackUrl = searchParams.get('callbackUrl') || '/';
 
 		const result = await signIn('credentials', {
 			redirect: false,
@@ -36,7 +39,7 @@ export default function LogInForm() {
 			setError('Invalid email or password');
 		} else {
 			track('Logged in', { email });
-			router.push('/');
+			router.push(callbackUrl);
 		}
 	};
 
