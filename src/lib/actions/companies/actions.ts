@@ -6,8 +6,10 @@ import {
 	addresses,
 	companies,
 	companyAddresses,
+	companyOnboardingProgress,
 	companyPeople,
 	companyPersonRoles,
+	onboardingSteps,
 	people,
 	roles,
 } from '@/db/schema';
@@ -90,6 +92,16 @@ export async function signUpCompanyAction(formData: FormData) {
 				companyPersonId: insertCompanyPerson.id,
 				roleId: externalAdminRole.id,
 			});
+
+			const steps = await db.select().from(onboardingSteps);
+
+			await tx.insert(companyOnboardingProgress).values(
+				steps.map((step) => ({
+					companyId: insertedCompany.id,
+					stepId: step.id,
+					isCompleted: false,
+				})),
+			);
 
 			userAttributes = {
 				email: person.email,
