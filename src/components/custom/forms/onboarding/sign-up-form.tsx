@@ -75,8 +75,6 @@ export function SignUpForm() {
 		if (result.error) {
 			console.log(result.error);
 		} else if (result.success) {
-			// TODO: Should eventually just sign in the user
-			// and redirect to next page of onboarding
 			track('Signed Up', {
 				companyName: data.company.name,
 			});
