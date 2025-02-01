@@ -154,23 +154,24 @@ export function PlanSetupForm() {
 													<FormLabel>
 														When would you like your HRA to start?
 													</FormLabel>
-													<FormControl>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
+													<Select
+														onValueChange={field.onChange}
+														defaultValue={field.value}
+													>
+														<FormControl>
 															<SelectTrigger>
 																<SelectValue placeholder="Select a start date" />
 															</SelectTrigger>
-															<SelectContent>
-																{getNextSixMonths().map((month) => (
-																	<SelectItem key={month} value={month}>
-																		{month}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
-													</FormControl>
+														</FormControl>
+
+														<SelectContent>
+															{getNextSixMonths().map((month) => (
+																<SelectItem key={month} value={month}>
+																	{month}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
 													<FormMessage />
 												</FormItem>
 											)}
