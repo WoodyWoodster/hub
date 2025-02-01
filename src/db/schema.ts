@@ -173,3 +173,40 @@ export const companyPersonRoles = pgTable(
 		},
 	],
 );
+
+export const onboardingSteps = pgTable('onboarding_steps', {
+	id: uuid('id')
+		.primaryKey()
+		.default(sql`uuid_generate_v7()`),
+	stepName: varchar('step_name', { length: 255 }).notNull(),
+	description: varchar('description', { length: 500 }),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const companyOnboardingProgress = pgTable(
+	'company_onboarding_progress',
+	{
+		companyId: uuid('company_id')
+			.references(() => companies.id)
+			.notNull(),
+		stepId: uuid('step_id')
+			.references(() => onboardingSteps.id)
+			.notNull(),
+		isCompleted: boolean('is_completed').notNull().default(false),
+		completedAt: timestamp('completed_at'),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		{
+			uniqueCompanyOnboardingStep: uniqueIndex(
+				'unique_company_onboarding_step',
+			).on(table.companyId, table.stepId),
+		},
+	],
+);
