@@ -3,19 +3,34 @@ import { z } from 'zod';
 export const planSetupSchema = z.object({
 	plan: z
 		.object({
-			startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-				message: 'Invalid start date',
-			}),
+			startDate: z
+				.string()
+				.regex(/^\d{4}-\d{2}-\d{2}$/, 'Please select a valid start date'),
 			eligibleEmployees: z
 				.string()
-				.min(1, 'Please enter the number of eligible employees'),
+				.min(1, 'Please enter the number of eligible employees')
+				.refine(
+					(val) => !isNaN(Number(val)) && Number(val) > 0,
+					'Must be a positive number',
+				),
 			participatingEmployees: z
 				.string()
-				.min(1, 'Please enter the number of participating employees'),
-			autopay: z.boolean(),
+				.min(1, 'Please enter the number of participating employees')
+				.refine(
+					(val) => !isNaN(Number(val)) && Number(val) > 0,
+					'Must be a positive number',
+				),
+			autopay: z.boolean().optional(),
 		})
-		.refine((data) => data.participatingEmployees <= data.eligibleEmployees, {
-			message:
-				'Participating employees must be less than or equal to eligible employees',
-		}),
+		.refine(
+			(data) => {
+				const eligible = Number(data.eligibleEmployees);
+				const participating = Number(data.participatingEmployees);
+				return participating <= eligible;
+			},
+			{
+				message: 'Participating employees cannot exceed eligible employees',
+				path: ['participatingEmployees'],
+			},
+		),
 });
