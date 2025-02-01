@@ -67,6 +67,15 @@ export function PlanSetupForm() {
 		const eligibleCount = Number(eligibleEmployees);
 		const participatingCount = Number(participatingEmployees);
 
+		if (participatingCount > eligibleCount) {
+			form.setError('plan.participatingEmployees', {
+				type: 'manual',
+				message: 'Participating employees cannot exceed eligible employees',
+			});
+		} else {
+			form.clearErrors('plan.participatingEmployees');
+		}
+
 		if (
 			(eligibleCount >= 50 || participatingCount >= 50) &&
 			!isNaN(eligibleCount) &&
@@ -74,7 +83,7 @@ export function PlanSetupForm() {
 		) {
 			setShowWarningModal(true);
 		}
-	}, [startDate, eligibleEmployees, participatingEmployees]);
+	}, [startDate, eligibleEmployees, participatingEmployees, form]);
 
 	const handleGoToChat = () => {
 		console.log('Redirecting to chat...');
@@ -85,9 +94,12 @@ export function PlanSetupForm() {
 		const date = new Date();
 		for (let i = 0; i < 6; i++) {
 			date.setMonth(date.getMonth() + 1);
-			months.push(
-				date.toLocaleString('default', { month: 'long', year: 'numeric' }),
-			);
+			const displayValue = date.toLocaleString('default', {
+				month: 'long',
+				year: 'numeric',
+			});
+			const dbValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+			months.push({ display: displayValue, value: dbValue });
 		}
 		return months;
 	};
@@ -138,7 +150,10 @@ export function PlanSetupForm() {
 			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
-						<form className="space-y-8">
+						<form
+							className="space-y-8"
+							onSubmit={form.handleSubmit((data) => console.log(data))}
+						>
 							<Progress value={50} className="w-full" />
 							<div className="space-y-8">
 								<div>
@@ -166,8 +181,11 @@ export function PlanSetupForm() {
 
 														<SelectContent>
 															{getNextSixMonths().map((month) => (
-																<SelectItem key={month} value={month}>
-																	{month}
+																<SelectItem
+																	key={month.value}
+																	value={month.value}
+																>
+																	{month.display}
 																</SelectItem>
 															))}
 														</SelectContent>
