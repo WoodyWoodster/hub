@@ -48,6 +48,7 @@ export function PlanSetupForm() {
 				eligibleEmployees: '',
 				participatingEmployees: '',
 				autopay: false,
+				selectedPlan: undefined,
 			},
 		},
 	});
@@ -276,7 +277,10 @@ export function PlanSetupForm() {
 													type="button"
 													variant={autopay ? 'default' : 'outline'}
 													className={`h-24 ${autopay ? 'border-primary border-2' : ''}`}
-													onClick={() => form.setValue('plan.autopay', true)}
+													onClick={() => {
+														form.setValue('plan.autopay', true);
+														form.setValue('plan.selectedPlan', 'Growth');
+													}}
 												>
 													Yes
 												</Button>
@@ -284,7 +288,10 @@ export function PlanSetupForm() {
 													type="button"
 													variant={autopay === false ? 'default' : 'outline'}
 													className={`h-24 ${autopay === false ? 'border-primary border-2' : ''}`}
-													onClick={() => form.setValue('plan.autopay', false)}
+													onClick={() => {
+														form.setValue('plan.autopay', false);
+														form.setValue('plan.selectedPlan', 'Starter');
+													}}
 												>
 													No
 												</Button>

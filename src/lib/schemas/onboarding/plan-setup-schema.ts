@@ -20,7 +20,8 @@ export const planSetupSchema = z.object({
 					(val) => !isNaN(Number(val)) && Number(val) > 0,
 					'Must be a positive number',
 				),
-			autopay: z.boolean().optional(),
+			autopay: z.boolean(),
+			selectedPlan: z.enum(['Growth', 'Starter']),
 		})
 		.refine(
 			(data) => {
