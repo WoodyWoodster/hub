@@ -26,9 +26,10 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/hooks/use-toast';
 import { track } from '@vercel/analytics/react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export function SignUpForm() {
+	const router = useRouter();
 	const form = useForm<z.infer<typeof signUpCompanySchema>>({
 		resolver: zodResolver(signUpCompanySchema),
 		// TODO: Remove the nested objects and use flat structure
@@ -79,6 +80,7 @@ export function SignUpForm() {
 			track('Signed Up', {
 				companyName: data.company.name,
 			});
+			router.push('/onboarding/plan-setup');
 		}
 
 		toast({
@@ -369,11 +371,9 @@ export function SignUpForm() {
 								</div>
 							</div>
 							<Button type="submit" className="w-full">
-								<Link href="/onboarding/plan-setup">
-									{form.formState.isSubmitting
-										? 'Adding Company...'
-										: 'Add Company'}
-								</Link>
+								{form.formState.isSubmitting
+									? 'Adding Company...'
+									: 'Add Company'}
 							</Button>
 						</form>
 					</Form>
