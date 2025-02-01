@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/select';
 import { signUpCompanyAction } from '@/lib/actions/companies/actions';
 import { usStates } from '@/lib/us-states';
-import { useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
 import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
 import { useForm } from 'react-hook-form';
@@ -27,9 +26,9 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/hooks/use-toast';
 import { track } from '@vercel/analytics/react';
+import Link from 'next/link';
 
 export function SignUpForm() {
-	const router = useRouter();
 	const form = useForm<z.infer<typeof signUpCompanySchema>>({
 		resolver: zodResolver(signUpCompanySchema),
 		// TODO: Remove the nested objects and use flat structure
@@ -80,7 +79,6 @@ export function SignUpForm() {
 			track('Signed Up', {
 				companyName: data.company.name,
 			});
-			router.push('/dashboard');
 		}
 
 		toast({
@@ -100,7 +98,7 @@ export function SignUpForm() {
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-							<Progress value={33} className="w-full" />
+							<Progress value={25} className="w-full" />
 							<div className="space-y-8">
 								<div>
 									<h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -371,9 +369,11 @@ export function SignUpForm() {
 								</div>
 							</div>
 							<Button type="submit" className="w-full">
-								{form.formState.isSubmitting
-									? 'Adding Company...'
-									: 'Add Company'}
+								<Link href="/onboarding/plan-setup">
+									{form.formState.isSubmitting
+										? 'Adding Company...'
+										: 'Add Company'}
+								</Link>
 							</Button>
 						</form>
 					</Form>
