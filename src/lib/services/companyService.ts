@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { companies } from '@/db/schema';
 import { sql } from 'drizzle-orm';
 import { registerCompanySchema } from '@/lib/schemas/companies';
-import { processCompanyRegistration } from '@/lib/actions/companies/actions';
+import { registerCompanyAction } from '@/lib/actions/companies/actions';
 
 export async function registerCompany(formData: FormData) {
 	const validatedFields = registerCompanySchema.safeParse({
@@ -34,7 +34,7 @@ export async function registerCompany(formData: FormData) {
 	const { person, company, address } = validatedFields.data;
 
 	try {
-		await processCompanyRegistration({
+		await registerCompanyAction({
 			person,
 			company,
 			address,
