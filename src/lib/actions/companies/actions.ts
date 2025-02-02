@@ -13,48 +13,21 @@ import {
 	people,
 	roles,
 } from '@/db/schema';
-import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
 import { isErr } from '@/types/result';
 import { eq, sql } from 'drizzle-orm';
 import { createStripeCustomer } from '../stripe/actions';
+import { ADMIN_ROLE_NAME } from '@/lib/constants/onboarding';
+import { registerCompanySchema } from '@/lib/schemas/companies';
+import { z } from 'zod';
 
-export async function signUpCompanyAction(formData: FormData) {
-	console.log('formData', formData);
-	const validatedFields = signUpCompanySchema.safeParse({
-		person: {
-			fullName: formData.get('person.fullName'),
-			email: formData.get('person.email'),
-			dateOfBirth: formData.get('person.dateOfBirth'),
-			password: formData.get('person.password'),
-			confirmPassword: formData.get('person.confirmPassword'),
-		},
-		company: {
-			name: formData.get('company.name'),
-			website: formData.get('company.website'),
-			industry: formData.get('company.industry'),
-			size: formData.get('company.size'),
-		},
-		address: {
-			street: formData.get('address.street'),
-			city: formData.get('address.city'),
-			state: formData.get('address.state'),
-			zipCode: formData.get('address.zipCode'),
-		},
-	});
-
-	if (!validatedFields.success) {
-		return { error: validatedFields.error.flatten().fieldErrors };
-	}
-
-	const { person, company, address } = validatedFields.data;
-
-	console.log('person', person);
-	console.log('company', company);
-	console.log('address', address);
-
+export async function processCompanyRegistration({
+	company,
+	person,
+	address,
+}: z.infer<typeof registerCompanySchema>) {
+	console.log('Processing company registration');
 	let userAttributes = {};
 	let companyId = '';
-
 	try {
 		await db.transaction(async (tx) => {
 			const [insertedCompany] = await tx
@@ -88,7 +61,7 @@ export async function signUpCompanyAction(formData: FormData) {
 			const [externalAdminRole] = await tx
 				.select()
 				.from(roles)
-				.where(sql`name = 'Admin'`);
+				.where(sql`name = ${ADMIN_ROLE_NAME}`);
 
 			await tx.insert(companyPersonRoles).values({
 				companyPersonId: insertCompanyPerson.id,
@@ -129,6 +102,7 @@ export async function signUpCompanyAction(formData: FormData) {
 		);
 
 		if (isErr(result)) {
+			console.log('Failed to create user', result.error);
 			return { error: result.error };
 		}
 
