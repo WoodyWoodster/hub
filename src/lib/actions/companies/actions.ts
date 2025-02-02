@@ -17,14 +17,13 @@ import { isErr } from '@/types/result';
 import { eq, sql } from 'drizzle-orm';
 import { createStripeCustomerAction } from '../stripe/actions';
 import { ADMIN_ROLE_NAME } from '@/lib/constants/onboarding';
-import { registerCompanySchema } from '@/lib/schemas/companies';
-import { z } from 'zod';
+import { RegisterCompanyValues } from '@/lib/schemas/companies';
 
 export async function registerCompanyAction({
 	company,
 	person,
 	address,
-}: z.infer<typeof registerCompanySchema>) {
+}: RegisterCompanyValues) {
 	console.log('Processing company registration');
 	let userAttributes = {};
 	let companyId = '';
@@ -50,6 +49,7 @@ export async function registerCompanyAction({
 				.values({
 					companyId: insertedCompany.id,
 					personId: insertedPerson.id,
+					isDefault: true,
 				})
 				.returning({ id: companyPeople.id });
 

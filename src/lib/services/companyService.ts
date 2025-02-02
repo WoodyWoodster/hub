@@ -1,31 +1,14 @@
 import { db } from '@/db';
 import { companies } from '@/db/schema';
 import { sql } from 'drizzle-orm';
-import { registerCompanySchema } from '@/lib/schemas/companies';
+import {
+	registerCompanySchema,
+	RegisterCompanyValues,
+} from '@/lib/schemas/companies';
 import { registerCompanyAction } from '@/lib/actions/companies/actions';
 
-export async function registerCompany(formData: FormData) {
-	const validatedFields = registerCompanySchema.safeParse({
-		person: {
-			fullName: formData.get('person.fullName'),
-			email: formData.get('person.email'),
-			dateOfBirth: formData.get('person.dateOfBirth'),
-			password: formData.get('person.password'),
-			confirmPassword: formData.get('person.confirmPassword'),
-		},
-		company: {
-			name: formData.get('company.name'),
-			website: formData.get('company.website'),
-			industry: formData.get('company.industry'),
-			size: formData.get('company.size'),
-		},
-		address: {
-			street: formData.get('address.street'),
-			city: formData.get('address.city'),
-			state: formData.get('address.state'),
-			zipCode: formData.get('address.zipCode'),
-		},
-	});
+export async function registerCompany(data: RegisterCompanyValues) {
+	const validatedFields = registerCompanySchema.safeParse(data);
 
 	if (!validatedFields.success) {
 		return { error: validatedFields.error.flatten().fieldErrors };
