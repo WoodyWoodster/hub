@@ -32,7 +32,6 @@ export function RegistrationForm() {
 	const router = useRouter();
 	const form = useForm<z.infer<typeof registerCompanySchema>>({
 		resolver: zodResolver(registerCompanySchema),
-		// TODO: Remove the nested objects and use flat structure
 		defaultValues: {
 			person: {
 				fullName: '',
@@ -369,7 +368,7 @@ export function RegistrationForm() {
 									</div>
 								</div>
 							</div>
-							<Button type="submit" className="w-full">
+							<Button className="w-full" type="submit">
 								{form.formState.isSubmitting ? 'Registering...' : 'Register'}
 							</Button>
 						</form>
