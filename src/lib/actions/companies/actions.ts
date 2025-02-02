@@ -15,7 +15,7 @@ import {
 } from '@/db/schema';
 import { isErr } from '@/types/result';
 import { eq, sql } from 'drizzle-orm';
-import { createStripeCustomer } from '../stripe/actions';
+import { createStripeCustomerAction } from '../stripe/actions';
 import { ADMIN_ROLE_NAME } from '@/lib/constants/onboarding';
 import { registerCompanySchema } from '@/lib/schemas/companies';
 import { z } from 'zod';
@@ -106,7 +106,7 @@ export async function registerCompanyAction({
 			return { error: result.error };
 		}
 
-		const stripeCustomer = await createStripeCustomer(
+		const stripeCustomer = await createStripeCustomerAction(
 			person.email,
 			company.name,
 		);
