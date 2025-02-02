@@ -30,15 +30,15 @@ import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 import { addPersonAction } from '@/lib/actions/people/actions';
 import { FC } from 'react';
-import { Role } from '../../tables/people/table';
 import { track } from '@vercel/analytics/react';
+import { getExternalRoles } from '@/lib/queries/roles/queries';
+import { useQuery } from '@tanstack/react-query';
 
 interface AddPersonFormProps {
 	onSuccess: () => void;
-	roles: Role[];
 }
 
-export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
+export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 	const session = useSession();
 	const form = useForm<AddPersonValues>({
 		resolver: zodResolver(addPersonSchema),
@@ -56,6 +56,18 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 			createdBy: session.data?.user.id,
 		},
 	});
+	const {
+		data: roles,
+		isLoading,
+		error,
+	} = useQuery({
+		queryKey: ['roles'],
+		queryFn: () => getExternalRoles(),
+		enabled: !!session.data?.user.id,
+	});
+
+	if (isLoading) return <div>Loading...</div>;
+	if (error) return <div>Error loading roles</div>;
 
 	const onSubmit = async (values: AddPersonValues) => {
 		console.log(values);
@@ -185,7 +197,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 																<SelectValue placeholder="Select a role" />
 															</SelectTrigger>
 															<SelectContent>
-																{roles.map((role) => (
+																{roles?.map((role) => (
 																	<SelectItem key={role.id} value={role.id}>
 																		{role.name}
 																	</SelectItem>
