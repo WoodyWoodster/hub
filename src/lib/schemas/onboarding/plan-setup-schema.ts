@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const planSetupSchema = z.object({
 	plan: z
 		.object({
+			companyId: z.string().uuid({ message: 'Invalid company ID' }),
 			startDate: z
 				.string()
 				.regex(/^\d{4}-\d{2}-\d{2}$/, 'Please select a valid start date'),
