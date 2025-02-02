@@ -11,9 +11,11 @@ import {
 } from '@/components/ui/select';
 import { usStates } from '@/lib/us-states';
 import { Progress } from '@/components/ui/progress';
-import { registerCompanySchema } from '@/lib/schemas/companies';
+import {
+	registerCompanySchema,
+	RegisterCompanyValues,
+} from '@/lib/schemas/companies';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import {
 	Form,
 	FormControl,
@@ -30,7 +32,7 @@ import { registerCompany } from '@/lib/services/companyService';
 
 export function RegistrationForm() {
 	const router = useRouter();
-	const form = useForm<z.infer<typeof registerCompanySchema>>({
+	const form = useForm<RegisterCompanyValues>({
 		resolver: zodResolver(registerCompanySchema),
 		defaultValues: {
 			person: {
@@ -55,22 +57,8 @@ export function RegistrationForm() {
 		},
 	});
 
-	// TODO: Simplify this when I flatten the schema
-	async function onSubmit(data: z.infer<typeof registerCompanySchema>) {
-		console.log(data);
-		const formData = new FormData();
-		Object.entries(data).forEach(([key, value]) => {
-			if (typeof value === 'object') {
-				Object.entries(value).forEach(([subKey, subValue]) => {
-					formData.append(`${key}.${subKey}`, subValue as string);
-				});
-			} else {
-				formData.append(key, value);
-			}
-		});
-
-		const result = await registerCompany(formData);
-
+	async function onSubmit(data: RegisterCompanyValues) {
+		const result = await registerCompany(data);
 		if (result?.error) {
 			console.log(result.error);
 			return;
