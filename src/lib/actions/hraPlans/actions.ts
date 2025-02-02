@@ -1,26 +1,20 @@
 import { db } from '@/db';
 import { hraPlans } from '@/db/schema';
-import { planSetupSchema } from '@/lib/schemas/onboarding/plan-setup-schema';
-import { z } from 'zod';
+import { PlanSetupValues } from '@/lib/schemas/onboarding/plan-setup-schema';
 
-export async function createHraPlanAction({
-	plan,
-}: z.infer<typeof planSetupSchema>) {
+export async function createHraPlanAction({ plan }: PlanSetupValues) {
 	console.log('Processing HRA plan creation');
-	let hraPlanId = '';
 	try {
 		await db.transaction(async (tx) => {
-			const [insertedHraPlan] = await tx
+			await tx
 				.insert(hraPlans)
 				.values({
 					companyId: plan.companyId,
 					startDate: plan.startDate,
 				})
 				.returning({ id: hraPlans.id });
-
-			hraPlanId = insertedHraPlan.id;
 		});
-		return { success: true, hraPlanId };
+		return { success: true };
 	} catch (error) {
 		console.error('Error creating HRA plan:', error);
 		return { error: 'Failed to create HRA plan' };
