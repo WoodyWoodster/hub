@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { SignUpForm } from '@/components/custom/forms/onboarding/sign-up-form';
+import { RegistrationForm } from '@/components/custom/forms/onboarding/registration-form';
 import { redirect } from 'next/navigation';
 
 export default async function SignUpPage() {
@@ -8,5 +8,5 @@ export default async function SignUpPage() {
 	if (session) {
 		redirect('/dashboard');
 	}
-	return <SignUpForm />;
+	return <RegistrationForm />;
 }
