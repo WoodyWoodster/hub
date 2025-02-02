@@ -211,3 +211,21 @@ export const companyOnboardingProgress = pgTable(
 		},
 	],
 );
+
+export const hraPlans = pgTable(
+	'hra_plans',
+	{
+		id: uuid('id')
+			.primaryKey()
+			.default(sql`uuid_generate_v7()`),
+		companyId: uuid('company_id')
+			.references(() => companies.id)
+			.notNull(),
+		startDate: date('start_date').notNull(),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [uniqueIndex('unique_hra_plan').on(table.companyId, table.id)],
+);
