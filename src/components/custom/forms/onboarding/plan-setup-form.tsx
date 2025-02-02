@@ -29,7 +29,10 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { planSetupSchema } from '@/lib/schemas/onboarding/plan-setup-schema';
+import {
+	planSetupSchema,
+	PlanSetupValues,
+} from '@/lib/schemas/onboarding/plan-setup-schema';
 import { createHraPlan } from '@/lib/services/hraPlanService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { track } from '@vercel/analytics/react';
@@ -38,7 +41,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 export function PlanSetupForm() {
 	const [showAutoPay, setShowAutoPay] = useState(false);
@@ -46,23 +48,33 @@ export function PlanSetupForm() {
 	const session = useSession();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof planSetupSchema>>({
+	const form = useForm<PlanSetupValues>({
 		resolver: zodResolver(planSetupSchema),
 		defaultValues: {
 			plan: {
-				companyId: session.data?.user.companyId,
+				companyId: '',
 				startDate: '',
 				eligibleEmployees: '',
 				participatingEmployees: '',
 				autopay: false,
-				selectedPlan: undefined,
+				selectedPlan: 'Starter',
 			},
 		},
 	});
-	const startDate = form.watch('plan.startDate');
-	const eligibleEmployees = form.watch('plan.eligibleEmployees');
-	const participatingEmployees = form.watch('plan.participatingEmployees');
-	const autopay = form.watch('plan.autopay');
+
+	useEffect(() => {
+		if (session.data?.user?.companyId) {
+			form.setValue('plan.companyId', session.data.user.companyId);
+		}
+	}, [session.data?.user?.companyId, form]);
+
+	const {
+		startDate,
+		eligibleEmployees,
+		participatingEmployees,
+		autopay,
+		selectedPlan,
+	} = form.watch('plan');
 
 	useEffect(() => {
 		if (startDate && eligibleEmployees && participatingEmployees) {
@@ -91,16 +103,22 @@ export function PlanSetupForm() {
 		) {
 			setShowWarningModal(true);
 		}
-	}, [startDate, eligibleEmployees, participatingEmployees, form]);
+	}, [
+		startDate,
+		eligibleEmployees,
+		participatingEmployees,
+		autopay,
+		selectedPlan,
+		form,
+	]);
 
 	const handleGoToChat = () => {
 		console.log('Redirecting to chat...');
 	};
 
-	async function onSubmit(data: z.infer<typeof planSetupSchema>) {
+	async function onSubmit(data: PlanSetupValues) {
 		const result = await createHraPlan(data);
-
-		if (result && 'error' in result) {
+		if (result?.error) {
 			console.error('Error creating HRA plan:', result.error);
 			toast({
 				title: 'Error',
@@ -109,16 +127,16 @@ export function PlanSetupForm() {
 			});
 			return;
 		}
-		if (result && 'hraPlanId' in result) {
-			track('HRA Plan Created', {
-				planId: result.hraPlanId,
-			});
-			toast({
-				title: 'HRA plan created successfully',
-				description: 'Your HRA plan has been created successfully.',
-			});
-			router.push('/onboarding/plan-structure');
-		}
+
+		track('HRA Plan Created', {
+			companyId: data.plan.companyId,
+			startDate: data.plan.startDate,
+		});
+		toast({
+			title: 'HRA plan created successfully',
+			description: 'Your HRA plan has been created successfully.',
+		});
+		router.push('/onboarding/plan-structure');
 	}
 
 	const getNextSixMonths = () => {
@@ -182,7 +200,13 @@ export function PlanSetupForm() {
 			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
-						<form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+						<form
+							onSubmit={form.handleSubmit((data) => {
+								console.log('Form submitted with data:', data);
+								onSubmit(data);
+							})}
+							className="space-y-8"
+						>
 							<Progress value={50} className="w-full" />
 							<div className="space-y-8">
 								<div>
@@ -202,14 +226,13 @@ export function PlanSetupForm() {
 													</FormLabel>
 													<Select
 														onValueChange={field.onChange}
-														defaultValue={field.value}
+														value={field.value}
 													>
 														<FormControl>
 															<SelectTrigger>
 																<SelectValue placeholder="Select a start date" />
 															</SelectTrigger>
 														</FormControl>
-
 														<SelectContent>
 															{getNextSixMonths().map((month) => (
 																<SelectItem
@@ -231,7 +254,11 @@ export function PlanSetupForm() {
 											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
 													<FormLabel
-														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
 													>
 														How many benefit eligible employees do you have?
 													</FormLabel>
@@ -252,7 +279,11 @@ export function PlanSetupForm() {
 											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
 													<FormLabel
-														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
 													>
 														How many participating employees do you have?
 													</FormLabel>
@@ -307,28 +338,58 @@ export function PlanSetupForm() {
 											</div>
 
 											<div className="mt-6 grid grid-cols-2 gap-4">
-												<Button
-													type="button"
-													variant={autopay ? 'default' : 'outline'}
-													className={`h-24 ${autopay ? 'border-primary border-2' : ''}`}
-													onClick={() => {
-														form.setValue('plan.autopay', true);
-														form.setValue('plan.selectedPlan', 'Growth');
-													}}
-												>
-													Yes
-												</Button>
-												<Button
-													type="button"
-													variant={autopay === false ? 'default' : 'outline'}
-													className={`h-24 ${autopay === false ? 'border-primary border-2' : ''}`}
-													onClick={() => {
-														form.setValue('plan.autopay', false);
-														form.setValue('plan.selectedPlan', 'Starter');
-													}}
-												>
-													No
-												</Button>
+												<FormField
+													control={form.control}
+													name="plan.autopay"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<Button
+																	type="button"
+																	variant={field.value ? 'default' : 'outline'}
+																	className={`h-24 w-full ${field.value ? 'border-primary border-2' : ''}`}
+																	onClick={() => {
+																		field.onChange(true);
+																		form.setValue(
+																			'plan.selectedPlan',
+																			'Growth',
+																		);
+																	}}
+																>
+																	Yes
+																</Button>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
+												<FormField
+													control={form.control}
+													name="plan.autopay"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<Button
+																	type="button"
+																	variant={
+																		field.value === false
+																			? 'default'
+																			: 'outline'
+																	}
+																	className={`h-24 w-full ${field.value === false ? 'border-primary border-2' : ''}`}
+																	onClick={() => {
+																		field.onChange(false);
+																		form.setValue(
+																			'plan.selectedPlan',
+																			'Starter',
+																		);
+																	}}
+																>
+																	No
+																</Button>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
 											</div>
 
 											{autopay !== undefined && (
