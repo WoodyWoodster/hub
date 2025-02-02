@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export type PlanSetupValues = z.infer<typeof planSetupSchema>;
+
 export const planSetupSchema = z.object({
 	plan: z
 		.object({
