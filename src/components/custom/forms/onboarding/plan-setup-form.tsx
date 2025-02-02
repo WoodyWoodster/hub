@@ -200,13 +200,7 @@ export function PlanSetupForm() {
 			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit((data) => {
-								console.log('Form submitted with data:', data);
-								onSubmit(data);
-							})}
-							className="space-y-8"
-						>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 							<Progress value={50} className="w-full" />
 							<div className="space-y-8">
 								<div>
