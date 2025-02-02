@@ -13,8 +13,10 @@ import {
 } from '@/components/ui/select';
 import { usStates } from '@/lib/us-states';
 import { useForm } from 'react-hook-form';
-import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
-import { z } from 'zod';
+import {
+	addPersonSchema,
+	AddPersonValues,
+} from '@/lib/schemas/people/add-person-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	Form,
@@ -38,7 +40,7 @@ interface AddPersonFormProps {
 
 export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 	const session = useSession();
-	const form = useForm<z.infer<typeof addPersonSchema>>({
+	const form = useForm<AddPersonValues>({
 		resolver: zodResolver(addPersonSchema),
 		defaultValues: {
 			fullName: '',
@@ -55,14 +57,9 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 		},
 	});
 
-	const onSubmit = async (values: z.infer<typeof addPersonSchema>) => {
+	const onSubmit = async (values: AddPersonValues) => {
 		console.log(values);
-		const formData = new FormData();
-		Object.entries(values).forEach(([key, value]) => {
-			formData.append(key, value);
-		});
-
-		const result = await addPersonAction(formData);
+		const result = await addPersonAction(values);
 
 		if (result.errors) {
 			toast({

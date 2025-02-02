@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export type AddPersonValues = z.infer<typeof addPersonSchema>;
+
 export const addPersonSchema = z.object({
 	fullName: z
 		.string()
