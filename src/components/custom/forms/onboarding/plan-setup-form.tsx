@@ -28,9 +28,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 import { planSetupSchema } from '@/lib/schemas/onboarding/plan-setup-schema';
+import { createHraPlan } from '@/lib/services/hraPlanService';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { track } from '@vercel/analytics/react';
 import { X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -38,11 +43,14 @@ import { z } from 'zod';
 export function PlanSetupForm() {
 	const [showAutoPay, setShowAutoPay] = useState(false);
 	const [showWarningModal, setShowWarningModal] = useState(false);
+	const session = useSession();
+	const router = useRouter();
 
 	const form = useForm<z.infer<typeof planSetupSchema>>({
 		resolver: zodResolver(planSetupSchema),
 		defaultValues: {
 			plan: {
+				companyId: session.data?.user.companyId,
 				startDate: '',
 				eligibleEmployees: '',
 				participatingEmployees: '',
@@ -51,7 +59,6 @@ export function PlanSetupForm() {
 			},
 		},
 	});
-
 	const startDate = form.watch('plan.startDate');
 	const eligibleEmployees = form.watch('plan.eligibleEmployees');
 	const participatingEmployees = form.watch('plan.participatingEmployees');
@@ -72,6 +79,7 @@ export function PlanSetupForm() {
 				type: 'manual',
 				message: 'Participating employees cannot exceed eligible employees',
 			});
+			setShowAutoPay(false);
 		} else {
 			form.clearErrors('plan.participatingEmployees');
 		}
@@ -88,6 +96,30 @@ export function PlanSetupForm() {
 	const handleGoToChat = () => {
 		console.log('Redirecting to chat...');
 	};
+
+	async function onSubmit(data: z.infer<typeof planSetupSchema>) {
+		const result = await createHraPlan(data);
+
+		if (result && 'error' in result) {
+			console.error('Error creating HRA plan:', result.error);
+			toast({
+				title: 'Error',
+				description: 'Failed to create HRA plan. Please try again.',
+				variant: 'destructive',
+			});
+			return;
+		}
+		if (result && 'hraPlanId' in result) {
+			track('HRA Plan Created', {
+				planId: result.hraPlanId,
+			});
+			toast({
+				title: 'HRA plan created successfully',
+				description: 'Your HRA plan has been created successfully.',
+			});
+			router.push('/onboarding/plan-structure');
+		}
+	}
 
 	const getNextSixMonths = () => {
 		const months = [];
@@ -150,10 +182,7 @@ export function PlanSetupForm() {
 			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
-						<form
-							className="space-y-8"
-							onSubmit={form.handleSubmit((data) => console.log(data))}
-						>
+						<form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
 							<Progress value={50} className="w-full" />
 							<div className="space-y-8">
 								<div>
@@ -164,9 +193,11 @@ export function PlanSetupForm() {
 										<FormField
 											control={form.control}
 											name="plan.startDate"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
 														When would you like your HRA to start?
 													</FormLabel>
 													<Select
@@ -190,16 +221,18 @@ export function PlanSetupForm() {
 															))}
 														</SelectContent>
 													</Select>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="plan.eligibleEmployees"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
 														How many benefit eligible employees do you have?
 													</FormLabel>
 													<FormControl>
@@ -209,16 +242,18 @@ export function PlanSetupForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="plan.participatingEmployees"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
 														How many participating employees do you have?
 													</FormLabel>
 													<FormControl>
@@ -228,7 +263,7 @@ export function PlanSetupForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -340,7 +375,7 @@ export function PlanSetupForm() {
 								)}
 							</div>
 							<Button className="w-full" type="submit">
-								Continue
+								{form.formState.isSubmitting ? 'Loading...' : 'Continue'}
 							</Button>
 						</form>
 					</Form>
