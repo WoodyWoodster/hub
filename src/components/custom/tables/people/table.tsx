@@ -24,7 +24,7 @@ import {
 	VisibilityState,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { AddPersonButton } from '../../buttons/people/add-person-button';
 import {
 	Table,
@@ -35,19 +35,19 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { useQuery } from '@tanstack/react-query';
+import { getPeopleForCompany } from '@/lib/queries/roles/queries';
+import { useSession } from 'next-auth/react';
 
-interface Person {
+interface Columns {
 	id: string;
 	fullName: string;
 	email: string;
 	role: string | null;
 	dateOfBirth: string;
 }
-interface PeopleTableProps {
-	people: Person[];
-}
 
-export const columns: ColumnDef<Person>[] = [
+export const columns: ColumnDef<Columns>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -137,14 +137,20 @@ export const columns: ColumnDef<Person>[] = [
 	},
 ];
 
-export const PeopleTable: FC<PeopleTableProps> = ({ people }) => {
+export const PeopleTable = () => {
+	const { data: session } = useSession();
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
+	const { data: people } = useQuery({
+		queryKey: ['people'],
+		queryFn: () => getPeopleForCompany(session?.user?.companyId as string),
+		enabled: !!session?.user?.companyId,
+	});
 
 	const table = useReactTable({
-		data: people,
+		data: people ?? [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
