@@ -60,7 +60,6 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 	const onSubmit = async (values: AddPersonValues) => {
 		console.log(values);
 		const result = await addPersonAction(values);
-
 		if (result.errors) {
 			toast({
 				title: 'Failed to add person',
@@ -98,29 +97,37 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 										<FormField
 											control={form.control}
 											name="fullName"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Full Name</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
+														Full Name
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="John Doe" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="email"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Email</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
+														Email
+													</FormLabel>
 													<FormControl>
 														<Input
 															placeholder="john.doe@example.com"
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -128,35 +135,47 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 										<FormField
 											control={form.control}
 											name="dateOfBirth"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Date of Birth</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
+														Date of Birth
+													</FormLabel>
 													<FormControl>
 														<Input type="date" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="hireDate"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Hire Date</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
+														Hire Date
+													</FormLabel>
 													<FormControl>
 														<Input type="date" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="roleId"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Role</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
+														Role
+													</FormLabel>
 													<FormControl>
 														<Select
 															onValueChange={field.onChange}
@@ -174,7 +193,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 															</SelectContent>
 														</Select>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -190,35 +209,47 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 									<FormField
 										control={form.control}
 										name="street"
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<FormItem className="sm:col-span-6">
-												<FormLabel>Street Address</FormLabel>
+												<FormLabel
+													className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+												>
+													Street Address
+												</FormLabel>
 												<FormControl>
 													<Input placeholder="123 Main St" {...field} />
 												</FormControl>
-												<FormMessage />
+												<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 											</FormItem>
 										)}
 									/>
 									<FormField
 										control={form.control}
 										name="city"
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<FormItem className="sm:col-span-2">
-												<FormLabel>City</FormLabel>
+												<FormLabel
+													className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+												>
+													City
+												</FormLabel>
 												<FormControl>
 													<Input placeholder="Richardson" {...field} />
 												</FormControl>
-												<FormMessage />
+												<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 											</FormItem>
 										)}
 									/>
 									<FormField
 										control={form.control}
 										name="state"
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<FormItem className="sm:col-span-2">
-												<FormLabel>State</FormLabel>
+												<FormLabel
+													className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+												>
+													State
+												</FormLabel>
 												<FormControl>
 													<Select
 														onValueChange={field.onChange}
@@ -239,20 +270,24 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess, roles }) => {
 														</SelectContent>
 													</Select>
 												</FormControl>
-												<FormMessage />
+												<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 											</FormItem>
 										)}
 									/>
 									<FormField
 										control={form.control}
 										name="zipCode"
-										render={({ field }) => (
+										render={({ field, fieldState }) => (
 											<FormItem className="sm:col-span-2">
-												<FormLabel>ZIP Code</FormLabel>
+												<FormLabel
+													className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+												>
+													ZIP Code
+												</FormLabel>
 												<FormControl>
 													<Input placeholder="12345" {...field} />
 												</FormControl>
-												<FormMessage />
+												<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 											</FormItem>
 										)}
 									/>
