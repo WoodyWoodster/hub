@@ -2,7 +2,7 @@
 
 import { stripe } from '@/lib/stripe';
 
-export async function createStripeCustomer(email: string, name: string) {
+export async function createStripeCustomerAction(email: string, name: string) {
 	try {
 		const customer = await stripe.customers.create({
 			email,
