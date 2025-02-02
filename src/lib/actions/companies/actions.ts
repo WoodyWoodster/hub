@@ -20,7 +20,7 @@ import { ADMIN_ROLE_NAME } from '@/lib/constants/onboarding';
 import { registerCompanySchema } from '@/lib/schemas/companies';
 import { z } from 'zod';
 
-export async function processCompanyRegistration({
+export async function registerCompanyAction({
 	company,
 	person,
 	address,
