@@ -22,7 +22,7 @@ import {
 	useReactTable,
 	type VisibilityState,
 } from '@tanstack/react-table';
-import { MoreHorizontal, Filter, ChevronDown, Plus } from 'lucide-react';
+import { MoreHorizontal, Filter, ChevronDown, Download } from 'lucide-react';
 import { useState } from 'react';
 import {
 	Table,
@@ -37,7 +37,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getPeopleForCompany } from '@/lib/queries/roles/queries';
 import { useSession } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '../../badge';
+import { AddPersonButton } from '../../buttons/people/add-person-button';
 
 interface Columns {
 	id: string;
@@ -174,164 +176,188 @@ export const PeopleTable = () => {
 
 	return (
 		<div className="w-full space-y-4">
-			<div className="space-y-4">
-				<div>
-					<h2 className="text-2xl font-semibold">People</h2>
-					<p className="text-muted-foreground text-sm">
-						Page description for accessibility
-					</p>
-				</div>
-
-				<div className="flex items-center justify-between">
+			<div>
+				<h2 className="text-2xl font-semibold">People</h2>
+				<p className="text-muted-foreground py-2 text-sm">
+					Here you can manage your team members. You can adjust their roles,
+					classes and more.
+				</p>
+			</div>
+			<Card className="w-full">
+				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
 					<div className="flex items-center space-x-2">
-						<Input
-							placeholder="Search..."
-							value={
-								(table.getColumn('fullName')?.getFilterValue() as string) ?? ''
-							}
-							onChange={(event) =>
-								table.getColumn('fullName')?.setFilterValue(event.target.value)
-							}
-							onFocus={() => setIsSearchFocused(true)}
-							onBlur={() => setIsSearchFocused(false)}
-							className={`bg-white transition-all duration-150 ease-in-out ${isSearchFocused ? 'w-[325px]' : 'w-[250px]'} `}
-						/>
-						<Button
+						<h3 className="text-lg font-semibold">Roster</h3>
+						<Badge
 							variant="secondary"
-							size="sm"
-							className="hover:bg-primary h-9 hover:text-white"
+							className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
 						>
-							Active
-						</Button>
-						<Button
-							variant="secondary"
-							size="sm"
-							className="hover:bg-primary h-9 hover:text-white"
-						>
-							Archive
-						</Button>
+							{people?.length ?? 0} Users
+						</Badge>
 					</div>
-					<div className="flex items-center space-x-2">
-						<Button className="bg-[#2F855A] hover:bg-[#276749]">
-							<Plus className="mr-2 h-4 w-4" /> Add Person
-						</Button>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline">
-									All Statuses <ChevronDown className="ml-2 h-4 w-4" />
+					<div className="flex items-center space-x-2"></div>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center space-x-2">
+								<Input
+									placeholder="Search..."
+									value={
+										(table.getColumn('fullName')?.getFilterValue() as string) ??
+										''
+									}
+									onChange={(event) =>
+										table
+											.getColumn('fullName')
+											?.setFilterValue(event.target.value)
+									}
+									onFocus={() => setIsSearchFocused(true)}
+									onBlur={() => setIsSearchFocused(false)}
+									className={`bg-white transition-all duration-150 ease-in-out ${isSearchFocused ? 'w-[325px]' : 'w-[250px]'}`}
+								/>
+								<Button
+									variant="secondary"
+									size="sm"
+									className="hover:bg-primary h-9 hover:text-white"
+								>
+									Active
 								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								{/* Status options */}
-							</DropdownMenuContent>
-						</DropdownMenu>
-						<Button variant="outline">
-							<Filter className="mr-2 h-4 w-4" /> Filter
-						</Button>
-					</div>
-				</div>
-			</div>
-			<div className="rounded-lg border bg-white shadow-sm">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id} className="hover:bg-transparent">
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead
-											key={header.id}
-											className="border-grey-200 border bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
-										>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && 'selected'}
-									className="hover:bg-gray-50/50"
+								<Button
+									variant="secondary"
+									size="sm"
+									className="hover:bg-primary h-9 hover:text-white"
 								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
-											className="border border-gray-200 p-2"
+									Archive
+								</Button>
+							</div>
+							<div className="flex items-center space-x-2">
+								<AddPersonButton />
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="outline">
+											All Statuses <ChevronDown className="ml-2 h-4 w-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										{/* Status options */}
+									</DropdownMenuContent>
+								</DropdownMenu>
+								<Button variant="outline">
+									<Filter className="mr-2 h-4 w-4" /> Filter
+								</Button>
+								<Button variant="outline" size="sm">
+									<Download className="mr-2 h-4 w-4" />
+									Download
+								</Button>
+							</div>
+						</div>
+						<div className="rounded-lg border bg-white shadow-sm">
+							<Table>
+								<TableHeader>
+									{table.getHeaderGroups().map((headerGroup) => (
+										<TableRow
+											key={headerGroup.id}
+											className="hover:bg-transparent"
 										>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
+											{headerGroup.headers.map((header) => {
+												return (
+													<TableHead
+														key={header.id}
+														className="bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
+													>
+														{header.isPlaceholder
+															? null
+															: flexRender(
+																	header.column.columnDef.header,
+																	header.getContext(),
+																)}
+													</TableHead>
+												);
+											})}
+										</TableRow>
 									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
+								</TableHeader>
+								<TableBody>
+									{table.getRowModel().rows?.length ? (
+										table.getRowModel().rows.map((row) => (
+											<TableRow
+												key={row.id}
+												data-state={row.getIsSelected() && 'selected'}
+												className="hover:bg-gray-50/50"
+											>
+												{row.getVisibleCells().map((cell) => (
+													<TableCell
+														key={cell.id}
+														className="border border-gray-200 p-2"
+													>
+														{flexRender(
+															cell.column.columnDef.cell,
+															cell.getContext(),
+														)}
+													</TableCell>
+												))}
+											</TableRow>
+										))
+									) : (
+										<TableRow>
+											<TableCell
+												colSpan={columns.length}
+												className="h-24 text-center"
+											>
+												No results.
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</div>
+						<div className="flex items-center justify-between p-4">
+							<div className="flex items-center space-x-2">
+								<span className="text-muted-foreground text-sm">Show</span>
+								<select
+									className="border-input bg-background ring-offset-background h-8 rounded-md border px-3 py-1 text-sm"
+									value={table.getState().pagination.pageSize}
+									onChange={(e) => {
+										table.setPageSize(Number(e.target.value));
+									}}
 								>
-									No results.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
-			<div className="flex items-center justify-between p-4">
-				<div className="flex items-center space-x-2">
-					<span className="text-muted-foreground text-sm">Show</span>
-					<select
-						className="border-input bg-background ring-offset-background h-8 rounded-md border px-3 py-1 text-sm"
-						value={table.getState().pagination.pageSize}
-						onChange={(e) => {
-							table.setPageSize(Number(e.target.value));
-						}}
-					>
-						{[10, 20, 30, 40, 50].map((pageSize) => (
-							<option key={pageSize} value={pageSize}>
-								{pageSize}
-							</option>
-						))}
-					</select>
-					<span className="text-muted-foreground text-sm">Items</span>
-				</div>
-				<div className="flex items-center space-x-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						Previous
-					</Button>
-					<Button
-						variant="default"
-						size="sm"
-						className="bg-[#2F855A] hover:bg-[#276749]"
-					>
-						1
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						Next
-					</Button>
-				</div>
-			</div>
+									{[10, 20, 30, 40, 50].map((pageSize) => (
+										<option key={pageSize} value={pageSize}>
+											{pageSize}
+										</option>
+									))}
+								</select>
+								<span className="text-muted-foreground text-sm">Items</span>
+							</div>
+							<div className="flex items-center space-x-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => table.previousPage()}
+									disabled={!table.getCanPreviousPage()}
+								>
+									Previous
+								</Button>
+								<Button
+									variant="default"
+									size="sm"
+									className="bg-[#2F855A] hover:bg-[#276749]"
+								>
+									1
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => table.nextPage()}
+									disabled={!table.getCanNextPage()}
+								>
+									Next
+								</Button>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
 };
