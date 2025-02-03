@@ -12,18 +12,18 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-	ColumnDef,
-	ColumnFiltersState,
+	type ColumnDef,
+	type ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	SortingState,
+	type SortingState,
 	useReactTable,
-	VisibilityState,
+	type VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Download, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { AddPersonButton } from '../../buttons/people/add-person-button';
 import {
@@ -38,6 +38,8 @@ import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import { getPeopleForCompany } from '@/lib/queries/roles/queries';
 import { useSession } from 'next-auth/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '../../badge';
 
 interface Columns {
 	id: string;
@@ -58,6 +60,7 @@ export const columns: ColumnDef<Columns>[] = [
 				}
 				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
+				className="translate-y-[2px]"
 			/>
 		),
 		cell: ({ row }) => (
@@ -65,6 +68,7 @@ export const columns: ColumnDef<Columns>[] = [
 				checked={row.getIsSelected()}
 				onCheckedChange={(value) => row.toggleSelected(!!value)}
 				aria-label="Select row"
+				className="translate-y-[2px]"
 			/>
 		),
 		enableSorting: false,
@@ -72,23 +76,32 @@ export const columns: ColumnDef<Columns>[] = [
 	},
 	{
 		accessorKey: 'fullName',
-		header: 'Full Name',
-		cell: ({ row }) => <div>{row.getValue('fullName')}</div>,
-	},
-	{
-		accessorKey: 'email',
 		header: ({ column }) => {
 			return (
 				<Button
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+					className="hover:bg-transparent"
 				>
-					Email
-					<ArrowUpDown />
+					Employee
+					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);
 		},
-		cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+		cell: ({ row }) => (
+			<div className="flex items-center gap-3">
+				<Avatar className="h-8 w-8">
+					<AvatarImage src={`https://avatar.vercel.sh/${row.original.email}`} />
+					<AvatarFallback>{row.getValue('fullName')}</AvatarFallback>
+				</Avatar>
+				<div className="flex flex-col">
+					<span className="font-medium">{row.getValue('fullName')}</span>
+					<span className="text-muted-foreground text-sm">
+						{row.original.email}
+					</span>
+				</div>
+			</div>
+		),
 	},
 	{
 		accessorKey: 'role',
@@ -112,26 +125,28 @@ export const columns: ColumnDef<Columns>[] = [
 			const person = row.original;
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() =>
-								navigator.clipboard.writeText(person.id.toString())
-							}
-						>
-							Copy person ID
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>View details</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex items-center justify-between">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<span className="sr-only">Open menu</span>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuItem
+								onClick={() =>
+									navigator.clipboard.writeText(person.id.toString())
+								}
+							>
+								Copy person ID
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem>View details</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			);
 		},
 	},
@@ -169,123 +184,137 @@ export const PeopleTable = () => {
 	});
 
 	return (
-		<>
-			<h1 className="font-display mb-6 text-3xl font-semibold">People</h1>
-			<div className="w-full">
-				<div className="flex items-center justify-between py-4">
+		<div className="w-full space-y-4">
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-2">
+					<h2 className="text-lg font-semibold">People</h2>
+					<Badge variant="purple" className="rounded-full">
+						{people?.length ?? 0} People
+					</Badge>
+				</div>
+				<div className="flex items-center space-x-2">
 					<Input
 						placeholder="Search..."
-						value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+						value={
+							(table.getColumn('fullName')?.getFilterValue() as string) ?? ''
+						}
 						onChange={(event) =>
-							table.getColumn('email')?.setFilterValue(event.target.value)
+							table.getColumn('fullName')?.setFilterValue(event.target.value)
 						}
 						className="max-w-sm bg-white"
 					/>
-					<div className="flex items-center space-x-2">
-						<AddPersonButton />
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="secondary" className="ml-auto">
-									Columns <ChevronDown />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								{table
-									.getAllColumns()
-									.filter((column) => column.getCanHide())
-									.map((column) => {
-										return (
-											<DropdownMenuCheckboxItem
-												key={column.id}
-												className="capitalize"
-												checked={column.getIsVisible()}
-												onCheckedChange={(value) =>
-													column.toggleVisibility(!!value)
-												}
-											>
-												{column.id}
-											</DropdownMenuCheckboxItem>
-										);
-									})}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</div>
-				<div className="rounded-md border">
-					<Table className="w-full bg-white">
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead key={header.id}>
-												{header.isPlaceholder
-													? null
-													: flexRender(
-															header.column.columnDef.header,
-															header.getContext(),
-														)}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow
-										key={row.id}
-										data-state={row.getIsSelected() && 'selected'}
-									>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
-											</TableCell>
-										))}
-									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-24 text-center"
-									>
-										No results.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-				<div className="flex items-center justify-end space-x-2 py-4">
-					<div className="text-muted-foreground flex-1 text-sm">
-						{table.getFilteredSelectedRowModel().rows.length} of{' '}
-						{table.getFilteredRowModel().rows.length} row(s) selected.
-					</div>
-					<div className="space-x-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
-						>
-							Previous
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
-						>
-							Next
-						</Button>
-					</div>
+					<AddPersonButton />
+					<Button variant="outline" size="sm">
+						<Download className="mr-2 h-4 w-4" />
+						Export
+					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" size="sm" className="ml-auto">
+								<Filter className="mr-2 h-4 w-4" />
+								Columns
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							{table
+								.getAllColumns()
+								.filter((column) => column.getCanHide())
+								.map((column) => {
+									return (
+										<DropdownMenuCheckboxItem
+											key={column.id}
+											className="capitalize"
+											checked={column.getIsVisible()}
+											onCheckedChange={(value) =>
+												column.toggleVisibility(!!value)
+											}
+										>
+											{column.id}
+										</DropdownMenuCheckboxItem>
+									);
+								})}
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
-		</>
+			<div className="rounded-lg border bg-white shadow-sm">
+				<Table>
+					<TableHeader>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id} className="hover:bg-transparent">
+								{headerGroup.headers.map((header) => {
+									return (
+										<TableHead key={header.id} className="bg-gray-50/50">
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody>
+						{table.getRowModel().rows?.length ? (
+							table.getRowModel().rows.map((row) => (
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && 'selected'}
+									className="hover:bg-gray-50/50"
+								>
+									{row.getVisibleCells().map((cell) => (
+										<TableCell
+											key={cell.id}
+											className="border border-gray-200 p-2"
+										>
+											{flexRender(
+												cell.column.columnDef.cell,
+												cell.getContext(),
+											)}
+										</TableCell>
+									))}
+								</TableRow>
+							))
+						) : (
+							<TableRow>
+								<TableCell
+									colSpan={columns.length}
+									className="h-24 text-center"
+								>
+									No results.
+								</TableCell>
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+			</div>
+			<div className="flex items-center justify-end space-x-2 py-4">
+				<div className="text-muted-foreground flex-1 text-sm">
+					{table.getFilteredSelectedRowModel().rows.length} of{' '}
+					{table.getFilteredRowModel().rows.length} row(s) selected.
+				</div>
+				<div className="space-x-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.previousPage()}
+						disabled={!table.getCanPreviousPage()}
+					>
+						Previous
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.nextPage()}
+						disabled={!table.getCanNextPage()}
+					>
+						Next
+					</Button>
+				</div>
+			</div>
+		</div>
 	);
 };
