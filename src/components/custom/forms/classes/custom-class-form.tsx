@@ -17,9 +17,9 @@ export function CustomClassForm() {
 	const form = useForm({
 		defaultValues: {
 			className: '',
-			employmentType: '',
-			salaryType: '',
-			seasonalType: '',
+			employmentType: [] as string[],
+			salaryType: [] as string[],
+			seasonalType: [] as string[],
 			geographicArea: '',
 			reimbursementStructure: '',
 			waitingPeriod: '',
@@ -68,11 +68,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'full-time'
+															field.value.includes('full-time')
 																? 'default'
 																: 'outline'
 														}
-														onClick={() => field.onChange('full-time')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('full-time')
+																? current.filter((v) => v !== 'full-time')
+																: [...current, 'full-time'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Full-Time
@@ -80,11 +86,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'part-time'
+															field.value.includes('part-time')
 																? 'default'
 																: 'outline'
 														}
-														onClick={() => field.onChange('part-time')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('part-time')
+																? current.filter((v) => v !== 'part-time')
+																: [...current, 'part-time'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Part-Time
@@ -108,9 +120,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'salary' ? 'default' : 'outline'
+															field.value.includes('salary')
+																? 'default'
+																: 'outline'
 														}
-														onClick={() => field.onChange('salary')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('salary')
+																? current.filter((v) => v !== 'salary')
+																: [...current, 'salary'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Salary
@@ -118,11 +138,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'non-salary'
+															field.value.includes('non-salary')
 																? 'default'
 																: 'outline'
 														}
-														onClick={() => field.onChange('non-salary')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('non-salary')
+																? current.filter((v) => v !== 'non-salary')
+																: [...current, 'non-salary'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Non-Salary
@@ -146,9 +172,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'seasonal' ? 'default' : 'outline'
+															field.value.includes('seasonal')
+																? 'default'
+																: 'outline'
 														}
-														onClick={() => field.onChange('seasonal')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('seasonal')
+																? current.filter((v) => v !== 'seasonal')
+																: [...current, 'seasonal'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Seasonal
@@ -156,11 +190,17 @@ export function CustomClassForm() {
 													<Button
 														type="button"
 														variant={
-															field.value === 'non-seasonal'
+															field.value.includes('non-seasonal')
 																? 'default'
 																: 'outline'
 														}
-														onClick={() => field.onChange('non-seasonal')}
+														onClick={() => {
+															const current = field.value as string[];
+															const updated = current.includes('non-seasonal')
+																? current.filter((v) => v !== 'non-seasonal')
+																: [...current, 'non-seasonal'];
+															field.onChange(updated);
+														}}
 														className="h-24 w-full"
 													>
 														Non-Seasonal
