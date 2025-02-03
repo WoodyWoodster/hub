@@ -16,6 +16,10 @@ import { eq } from 'drizzle-orm';
 
 const cognitoClient = new CognitoIdentityProviderClient({
 	region: process.env.AWS_REGION,
+	credentials: {
+		accessKeyId: process.env.COGNITO_ACCESS_KEY_ID as string,
+		secretAccessKey: process.env.COGNITO_SECRET_ACCESS_KEY as string,
+	},
 });
 
 interface CreateUserError {
