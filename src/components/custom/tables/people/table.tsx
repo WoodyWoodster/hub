@@ -22,7 +22,13 @@ import {
 	useReactTable,
 	type VisibilityState,
 } from '@tanstack/react-table';
-import { MoreHorizontal, Filter, ChevronDown, Download } from 'lucide-react';
+import {
+	MoreHorizontal,
+	Filter,
+	ChevronDown,
+	Download,
+	ArrowUpDown,
+} from 'lucide-react';
 import { useState } from 'react';
 import {
 	Table,
@@ -75,7 +81,20 @@ export const columns: ColumnDef<Columns>[] = [
 	},
 	{
 		accessorKey: 'fullName',
-		header: 'Employee',
+		header: ({ column }) => {
+			return (
+				<div
+					className="flex items-center space-x-2"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					<span>Employee</span>
+					<Button variant="ghost" className="h-8 w-8 p-0">
+						<span className="sr-only">Sort</span>
+						<ArrowUpDown className="h-4 w-4" />
+					</Button>
+				</div>
+			);
+		},
 		cell: ({ row }) => (
 			<div className="flex items-center gap-3">
 				<Avatar className="h-8 w-8">
@@ -338,13 +357,29 @@ export const PeopleTable = () => {
 								>
 									Previous
 								</Button>
-								<Button
-									variant="default"
-									size="sm"
-									className="bg-[#2F855A] hover:bg-[#276749]"
-								>
-									1
-								</Button>
+								{table.getPageCount() > 0 &&
+									Array.from(
+										{ length: table.getPageCount() },
+										(_, i) => i + 1,
+									).map((pageNumber) => (
+										<Button
+											key={pageNumber}
+											variant={
+												pageNumber === table.getState().pagination.pageIndex + 1
+													? 'default'
+													: 'outline'
+											}
+											size="sm"
+											onClick={() => table.setPageIndex(pageNumber - 1)}
+											className={
+												pageNumber === table.getState().pagination.pageIndex + 1
+													? 'bg-[#2F855A] hover:bg-[#276749]'
+													: ''
+											}
+										>
+											{pageNumber}
+										</Button>
+									))}
 								<Button
 									variant="outline"
 									size="sm"
