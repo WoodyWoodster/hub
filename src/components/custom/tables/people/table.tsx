@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
 	DropdownMenu,
-	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
@@ -23,9 +22,8 @@ import {
 	useReactTable,
 	type VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Download, Filter } from 'lucide-react';
+import { MoreHorizontal, Filter, ChevronDown, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { AddPersonButton } from '../../buttons/people/add-person-button';
 import {
 	Table,
 	TableBody,
@@ -47,6 +45,7 @@ interface Columns {
 	email: string;
 	role: string | null;
 	dateOfBirth: string;
+	hireDate: string | null;
 }
 
 export const columns: ColumnDef<Columns>[] = [
@@ -60,7 +59,6 @@ export const columns: ColumnDef<Columns>[] = [
 				}
 				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
-				className="translate-y-[2px]"
 			/>
 		),
 		cell: ({ row }) => (
@@ -68,7 +66,6 @@ export const columns: ColumnDef<Columns>[] = [
 				checked={row.getIsSelected()}
 				onCheckedChange={(value) => row.toggleSelected(!!value)}
 				aria-label="Select row"
-				className="translate-y-[2px]"
 			/>
 		),
 		enableSorting: false,
@@ -76,18 +73,7 @@ export const columns: ColumnDef<Columns>[] = [
 	},
 	{
 		accessorKey: 'fullName',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-					className="hover:bg-transparent"
-				>
-					Employee
-					<ArrowUpDown className="ml-2 h-4 w-4" />
-				</Button>
-			);
-		},
+		header: 'Employee',
 		cell: ({ row }) => (
 			<div className="flex items-center gap-3">
 				<Avatar className="h-8 w-8">
@@ -104,19 +90,21 @@ export const columns: ColumnDef<Columns>[] = [
 		),
 	},
 	{
+		accessorKey: 'status',
+		header: 'Status',
+		cell: () => <Badge variant="purple">{'Status Example'}</Badge>,
+	},
+	{
 		accessorKey: 'role',
 		header: 'Role',
-		cell: ({ row }) => <div>{row.getValue('role')}</div>,
 	},
 	{
 		accessorKey: 'dateOfBirth',
 		header: 'Date of Birth',
-		cell: ({ row }) => <div>{row.getValue('dateOfBirth')}</div>,
 	},
 	{
 		accessorKey: 'hireDate',
 		header: 'Hire Date',
-		cell: ({ row }) => <div>{row.getValue('hireDate')}</div>,
 	},
 	{
 		id: 'actions',
@@ -158,6 +146,7 @@ export const PeopleTable = () => {
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
+	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const { data: people } = useQuery({
 		queryKey: ['people'],
 		queryFn: () => getPeopleForCompany(session?.user?.companyId as string),
@@ -185,56 +174,61 @@ export const PeopleTable = () => {
 
 	return (
 		<div className="w-full space-y-4">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-2">
-					<h2 className="text-lg font-semibold">People</h2>
-					<Badge variant="purple" className="rounded-full">
-						{people?.length ?? 0} People
-					</Badge>
+			<div className="space-y-4">
+				<div>
+					<h2 className="text-2xl font-semibold">People</h2>
+					<p className="text-muted-foreground text-sm">
+						Page description for accessibility
+					</p>
 				</div>
-				<div className="flex items-center space-x-2">
-					<Input
-						placeholder="Search..."
-						value={
-							(table.getColumn('fullName')?.getFilterValue() as string) ?? ''
-						}
-						onChange={(event) =>
-							table.getColumn('fullName')?.setFilterValue(event.target.value)
-						}
-						className="max-w-sm bg-white"
-					/>
-					<AddPersonButton />
-					<Button variant="outline" size="sm">
-						<Download className="mr-2 h-4 w-4" />
-						Export
-					</Button>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline" size="sm" className="ml-auto">
-								<Filter className="mr-2 h-4 w-4" />
-								Columns
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							{table
-								.getAllColumns()
-								.filter((column) => column.getCanHide())
-								.map((column) => {
-									return (
-										<DropdownMenuCheckboxItem
-											key={column.id}
-											className="capitalize"
-											checked={column.getIsVisible()}
-											onCheckedChange={(value) =>
-												column.toggleVisibility(!!value)
-											}
-										>
-											{column.id}
-										</DropdownMenuCheckboxItem>
-									);
-								})}
-						</DropdownMenuContent>
-					</DropdownMenu>
+
+				<div className="flex items-center justify-between">
+					<div className="flex items-center space-x-2">
+						<Input
+							placeholder="Search..."
+							value={
+								(table.getColumn('fullName')?.getFilterValue() as string) ?? ''
+							}
+							onChange={(event) =>
+								table.getColumn('fullName')?.setFilterValue(event.target.value)
+							}
+							onFocus={() => setIsSearchFocused(true)}
+							onBlur={() => setIsSearchFocused(false)}
+							className={`bg-white transition-all duration-150 ease-in-out ${isSearchFocused ? 'w-[325px]' : 'w-[250px]'} `}
+						/>
+						<Button
+							variant="secondary"
+							size="sm"
+							className="hover:bg-primary h-9 hover:text-white"
+						>
+							Active
+						</Button>
+						<Button
+							variant="secondary"
+							size="sm"
+							className="hover:bg-primary h-9 hover:text-white"
+						>
+							Archive
+						</Button>
+					</div>
+					<div className="flex items-center space-x-2">
+						<Button className="bg-[#2F855A] hover:bg-[#276749]">
+							<Plus className="mr-2 h-4 w-4" /> Add Person
+						</Button>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline">
+									All Statuses <ChevronDown className="ml-2 h-4 w-4" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								{/* Status options */}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<Button variant="outline">
+							<Filter className="mr-2 h-4 w-4" /> Filter
+						</Button>
+					</div>
 				</div>
 			</div>
 			<div className="rounded-lg border bg-white shadow-sm">
@@ -244,7 +238,10 @@ export const PeopleTable = () => {
 							<TableRow key={headerGroup.id} className="hover:bg-transparent">
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id} className="bg-gray-50/50">
+										<TableHead
+											key={header.id}
+											className="border-grey-200 border bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
+										>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -291,12 +288,25 @@ export const PeopleTable = () => {
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex items-center justify-end space-x-2 py-4">
-				<div className="text-muted-foreground flex-1 text-sm">
-					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+			<div className="flex items-center justify-between p-4">
+				<div className="flex items-center space-x-2">
+					<span className="text-muted-foreground text-sm">Show</span>
+					<select
+						className="border-input bg-background ring-offset-background h-8 rounded-md border px-3 py-1 text-sm"
+						value={table.getState().pagination.pageSize}
+						onChange={(e) => {
+							table.setPageSize(Number(e.target.value));
+						}}
+					>
+						{[10, 20, 30, 40, 50].map((pageSize) => (
+							<option key={pageSize} value={pageSize}>
+								{pageSize}
+							</option>
+						))}
+					</select>
+					<span className="text-muted-foreground text-sm">Items</span>
 				</div>
-				<div className="space-x-2">
+				<div className="flex items-center space-x-2">
 					<Button
 						variant="outline"
 						size="sm"
@@ -304,6 +314,13 @@ export const PeopleTable = () => {
 						disabled={!table.getCanPreviousPage()}
 					>
 						Previous
+					</Button>
+					<Button
+						variant="default"
+						size="sm"
+						className="bg-[#2F855A] hover:bg-[#276749]"
+					>
+						1
 					</Button>
 					<Button
 						variant="outline"
