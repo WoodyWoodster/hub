@@ -32,7 +32,7 @@ import { addPersonAction } from '@/lib/actions/people/actions';
 import { FC } from 'react';
 import { track } from '@vercel/analytics/react';
 import { getExternalRoles } from '@/lib/queries/roles/queries';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface AddPersonFormProps {
 	onSuccess: () => void;
@@ -40,6 +40,7 @@ interface AddPersonFormProps {
 
 export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 	const session = useSession();
+	const queryClient = useQueryClient();
 	const form = useForm<AddPersonValues>({
 		resolver: zodResolver(addPersonSchema),
 		defaultValues: {
@@ -85,6 +86,8 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 			email: values.email,
 			role: values.roleId,
 		});
+
+		queryClient.invalidateQueries({ queryKey: ['people'] });
 
 		onSuccess();
 

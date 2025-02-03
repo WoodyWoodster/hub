@@ -16,7 +16,7 @@ import {
 	AddPersonValues,
 } from '@/lib/schemas/people/add-person-schema';
 import { count, eq } from 'drizzle-orm';
-import { revalidatePath, unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
 export async function addPersonAction(data: AddPersonValues) {
@@ -99,8 +99,6 @@ export async function addPersonAction(data: AddPersonValues) {
 				errors: { form: 'An unexpected error occurred' },
 			};
 		}
-
-		revalidatePath('/people');
 
 		return {
 			success: true,
