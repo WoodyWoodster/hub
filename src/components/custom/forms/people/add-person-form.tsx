@@ -57,18 +57,11 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 			createdBy: session.data?.user.id,
 		},
 	});
-	const {
-		data: roles,
-		isLoading,
-		error,
-	} = useQuery({
+	const { data: roles } = useQuery({
 		queryKey: ['roles'],
 		queryFn: () => getExternalRoles(),
 		enabled: !!session.data?.user.id,
 	});
-
-	if (isLoading) return <div>Loading...</div>;
-	if (error) return <div>Error loading roles</div>;
 
 	const onSubmit = async (values: AddPersonValues) => {
 		console.log(values);
