@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { track } from '@vercel/analytics/react';
+import { LogoPrimary } from '@/components/logo';
 
 export default function LogInForm() {
 	const [email, setEmail] = useState('');
@@ -45,7 +46,7 @@ export default function LogInForm() {
 			<Card className="w-full max-w-md">
 				<CardHeader>
 					<CardTitle className="text-center text-2xl font-bold tracking-tight text-gray-900">
-						HRA Hub
+						<LogoPrimary className="mx-auto w-2/3" />
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -92,12 +93,12 @@ export default function LogInForm() {
 				</CardContent>
 				<CardFooter>
 					<p className="text-center text-sm text-gray-500">
-						Not a member?{' '}
+						Don&apos;t have an account?{' '}
 						<Link
 							href="/sign-up"
 							className="text-primary hover:text-primary/80 font-semibold"
 						>
-							Start a 14 day free trial
+							Register your company
 						</Link>
 					</p>
 				</CardFooter>
