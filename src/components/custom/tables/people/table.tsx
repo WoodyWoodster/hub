@@ -38,8 +38,8 @@ import { getPeopleForCompany } from '@/lib/queries/roles/queries';
 import { useSession } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '../../badge';
-import { AddPersonButton } from '../../buttons/people/add-person-button';
+import { Badge } from '@/components/custom/badge';
+import { AddPersonButton } from '@/components/custom/buttons/people/add-person-button';
 
 interface Columns {
 	id: string;
@@ -263,7 +263,7 @@ export const PeopleTable = () => {
 												return (
 													<TableHead
 														key={header.id}
-														className="bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
+														className="border-grey-200 border bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
 													>
 														{header.isPlaceholder
 															? null
