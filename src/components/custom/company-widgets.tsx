@@ -1,11 +1,10 @@
 import { companyWidgets } from '@/lib/dashboardWidgets';
-import { AutopayWidget } from './widgets/employer/autopayWidget';
-import { EnrollmentChart } from './widgets/employer/enrollmentChart';
-import { ComplianceChart } from './widgets/employer/complianceChart';
-import { UpdatesWidget } from './widgets/employer/updatesWidget';
+import { UpdatesWidget } from './widgets/employer/updates-widget';
+import { AutopayWidget } from './widgets/employer/autopay-widget';
+import { EnrollmentChart } from './widgets/employer/enrollment-chart';
+import { ComplianceChart } from './widgets/employer/compliance-chart';
 
 export function CompanyWidgets() {
-	// const employeeTopWidgetsCount = employeeWidgets.topWidgets.length;
 	return (
 		<div className="flex flex-col gap-4">
 			{companyWidgets.autopayWidget.map((widget) => (
@@ -15,11 +14,11 @@ export function CompanyWidgets() {
 					autopayColumns={widget.autopayColumns}
 				/>
 			))}
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<EnrollmentChart />
 				<ComplianceChart />
 			</div>
-			<div className="gap-4">
+			<div className="w-full">
 				<UpdatesWidget
 					title="Recent Updates"
 					updates={companyWidgets.updatesWidget.updates}
