@@ -2,6 +2,8 @@ import { sql } from 'drizzle-orm';
 import {
 	boolean,
 	date,
+	integer,
+	pgEnum,
 	pgTable,
 	text,
 	timestamp,
@@ -10,6 +12,34 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core';
 
+// Enums
+export const classStructure = pgEnum('class_structure', [
+	'VARY_BY_AGE',
+	'VARY_BY_FAMILY_SIZE',
+	'VARY_BY_FAMILY_SIZE_AND_AGE',
+	'ALL_EMPLOYEES',
+]);
+
+export const eligibleForReimbursement = pgEnum('eligible_for_reimbursement', [
+	'PREMIUM_ONLY',
+	'PREMIUM_AND_MEDICAL_EXPENSES',
+]);
+
+export const reimbursementType = pgEnum('reimbursement_type', [
+	'EMPLOYEE',
+	'SPOUSE',
+	'CHILDREN',
+	'SPOUSE_AND_CHILDREN',
+]);
+
+export const waitingPeriod = pgEnum('waiting_period', [
+	'IMMEDIATE',
+	'FIRST_OF_MONTH_AFTER_30_DAYS',
+	'FIRST_OF_MONTH_AFTER_60_DAYS',
+	'FIRST_OF_MONTH_AFTER_90_DAYS',
+]);
+
+// Tables
 export const people = pgTable('people', {
 	id: uuid('id')
 		.primaryKey()
@@ -212,6 +242,7 @@ export const companyOnboardingProgress = pgTable(
 	],
 );
 
+// Rename to hraPrograms???
 export const hraPlans = pgTable(
 	'hra_plans',
 	{
@@ -222,6 +253,9 @@ export const hraPlans = pgTable(
 			.references(() => companies.id)
 			.notNull(),
 		startDate: date('start_date').notNull(),
+		endDate: date('end_date'),
+		fullTimeHourQualification: integer('full_time_hour_qualification'),
+		seasonalMonthQualification: integer('seasonal_month_qualification'),
 		createdAt: timestamp('created_at').defaultNow(),
 		updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
 			.defaultNow()
@@ -229,3 +263,110 @@ export const hraPlans = pgTable(
 	},
 	(table) => [uniqueIndex('unique_hra_plan').on(table.companyId, table.id)],
 );
+
+export const hraClasses = pgTable(
+	'hra_classes',
+	{
+		id: uuid('id')
+			.primaryKey()
+			.default(sql`uuid_generate_v7()`),
+		planId: uuid('plan_id')
+			.references(() => hraPlans.id)
+			.notNull(),
+		name: varchar('name', { length: 255 }).notNull(),
+		classStructure: classStructure('class_structure')
+			.notNull()
+			.default('ALL_EMPLOYEES'),
+		isFullTime: boolean('is_full_time').notNull().default(false),
+		isSalaried: boolean('is_salaried').notNull().default(false),
+		isSeasonal: boolean('is_seasonal').notNull().default(false),
+		isSpecificGeography: boolean('is_specific_geography')
+			.notNull()
+			.default(false),
+		geographyDescription: text('geography_description'),
+		waitingPeriod: waitingPeriod('waiting_period')
+			.notNull()
+			.default('IMMEDIATE'),
+		eligibleForReimbursement: eligibleForReimbursement(
+			'eligible_for_reimbursement',
+		)
+			.notNull()
+			.default('PREMIUM_ONLY'),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [uniqueIndex('unique_hra_class').on(table.planId, table.name)],
+);
+
+export const reimbursementRates = pgTable(
+	'reimbursement_rates',
+	{
+		id: uuid('id')
+			.primaryKey()
+			.default(sql`uuid_generate_v7()`),
+		classId: uuid('class_id')
+			.references(() => hraClasses.id)
+			.notNull(),
+		isVaryingByAge: boolean('is_varying_by_age').notNull().default(false),
+		reimbursementAmount: integer('reimbursement_amount').notNull(),
+		reimbursementType: reimbursementType('reimbursement_type').notNull(),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		uniqueIndex('unique_reimbursement_rate').on(table.classId, table.id),
+	],
+);
+
+export const ageCurves = pgTable('age_curves', {
+	id: uuid('id')
+		.primaryKey()
+		.default(sql`uuid_generate_v7()`),
+	reimbursementRateId: uuid('reimbursement_rate_id')
+		.references(() => reimbursementRates.id)
+		.notNull(),
+	name: varchar('name', { length: 255 }).notNull(),
+	state: varchar('state', { length: 2 }).notNull(),
+	isDefault: boolean('is_default').notNull().default(false),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const ageCurveMultipliers = pgTable('age_curve_multipliers', {
+	id: uuid('id')
+		.primaryKey()
+		.default(sql`uuid_generate_v7()`),
+	ageCurveId: uuid('age_curve_id')
+		.references(() => ageCurves.id)
+		.notNull(),
+	multiplier: integer('multiplier').notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const healthBenefits = pgTable('health_benefits', {
+	id: uuid('id')
+		.primaryKey()
+		.default(sql`uuid_generate_v7()`),
+	companyPersonId: uuid('company_person_id')
+		.references(() => companyPeople.id)
+		.notNull(),
+	classId: uuid('class_id')
+		.references(() => hraClasses.id)
+		.notNull(),
+	isWaived: boolean('is_waived').notNull().default(false),
+	eligibilityStartDate: date('eligibility_start_date'),
+	eligibilityEndDate: date('eligibility_end_date'),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
