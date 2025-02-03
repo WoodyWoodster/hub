@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Label, Pie, PieChart, ResponsiveContainer, Cell } from 'recharts';
+import { Pie, PieChart, ResponsiveContainer, Cell } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -34,83 +34,50 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function EnrollmentChart() {
-	const totalEmployees = React.useMemo(() => {
-		return chartData.reduce((acc, curr) => acc + curr.employees, 0);
-	}, []);
-
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-				<CardTitle>Employee Enrollment</CardTitle>
-				<Button variant="link" size="sm" className="text-xs">
+			<CardHeader className="flex flex-row items-center justify-between">
+				<CardTitle className="text-muted-foreground text-lg font-normal">
+					Employee Enrollment
+				</CardTitle>
+				<Button variant="link" className="text-primary hover:text-primary/90">
 					Download Report
 				</Button>
 			</CardHeader>
 			<CardContent>
-				<div className="flex flex-col items-center gap-4 md:flex-row">
-					<div className="min-h-[250px] w-full md:w-3/5">
-						<ChartContainer config={chartConfig} className="h-full w-full">
-							<ResponsiveContainer width="100%" height={250}>
-								<PieChart>
-									<ChartTooltip
-										cursor={false}
-										content={<ChartTooltipContent />}
-									/>
-									<Pie
-										data={chartData}
-										dataKey="employees"
-										nameKey="enrollment"
-										innerRadius={70}
-										outerRadius={90}
-										paddingAngle={2}
-									>
-										{chartData.map((entry, index) => (
-											<Cell
-												key={`cell-${index}`}
-												fill={
-													chartConfig[
-														entry.enrollment as keyof typeof chartConfig
-													].color
-												}
-											/>
-										))}
-										<Label
-											content={({ viewBox }) => {
-												if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-													return (
-														<text
-															x={viewBox.cx}
-															y={viewBox.cy}
-															textAnchor="middle"
-															dominantBaseline="middle"
-														>
-															<tspan
-																x={viewBox.cx}
-																y={viewBox.cy}
-																className="fill-foreground text-2xl font-bold"
-															>
-																{totalEmployees.toLocaleString()}
-															</tspan>
-															<tspan
-																x={viewBox.cx}
-																y={(viewBox.cy || 0) + 20}
-																className="fill-muted-foreground text-sm"
-															>
-																Employees
-															</tspan>
-														</text>
-													);
-												}
-											}}
+				<div className="flex items-center justify-between">
+					<ChartContainer config={chartConfig} className="h-[260px] w-[260px]">
+						<ResponsiveContainer>
+							<PieChart>
+								<ChartTooltip content={<ChartTooltipContent />} />
+								<Pie
+									data={chartData}
+									dataKey="employees"
+									nameKey="enrollment"
+									innerRadius={0}
+									outerRadius="90%"
+									paddingAngle={2}
+								>
+									{chartData.map((entry, index) => (
+										<Cell
+											key={`cell-${index}`}
+											fill={
+												chartConfig[
+													entry.enrollment as keyof typeof chartConfig
+												].color
+											}
 										/>
-									</Pie>
-								</PieChart>
-							</ResponsiveContainer>
-						</ChartContainer>
-					</div>
-					<div className="w-full space-y-3 md:w-2/5">
+									))}
+								</Pie>
+							</PieChart>
+						</ResponsiveContainer>
+					</ChartContainer>
+					<div className="space-y-4">
 						{Object.entries(chartConfig).map(([key, value]) => (
-							<div key={key} className="flex items-center justify-between">
+							<div
+								key={key}
+								className="flex items-center justify-between gap-8"
+							>
 								<div className="flex items-center gap-2">
 									<div
 										className="h-3 w-3 rounded-full"
@@ -121,9 +88,7 @@ export function EnrollmentChart() {
 									</span>
 								</div>
 								<span className="font-medium">
-									{chartData
-										.find((item) => item.enrollment === key)
-										?.employees.toLocaleString()}
+									{chartData.find((item) => item.enrollment === key)?.employees}
 								</span>
 							</div>
 						))}
