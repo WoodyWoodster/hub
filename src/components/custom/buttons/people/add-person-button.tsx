@@ -14,14 +14,8 @@ import {
 } from '@/components/ui/drawer';
 import { AddPersonForm } from '@/components/custom/forms/people/add-person-form';
 import { Plus } from 'lucide-react';
-import { Role } from '../../tables/people/table';
-import { FC } from 'react';
 
-interface AddPersonButtonProps {
-	roles: Role[];
-}
-
-export const AddPersonButton: FC<AddPersonButtonProps> = ({ roles }) => {
+export const AddPersonButton = () => {
 	const [open, setOpen] = React.useState(false);
 
 	return (
@@ -38,7 +32,7 @@ export const AddPersonButton: FC<AddPersonButtonProps> = ({ roles }) => {
 						Fill out the form to add a new person to HRA Hub.
 					</DrawerDescription>
 				</DrawerHeader>
-				<AddPersonForm onSuccess={() => setOpen(false)} roles={roles} />
+				<AddPersonForm onSuccess={() => setOpen(false)} />
 				<DrawerFooter>
 					<DrawerClose asChild>
 						<Button variant="outline">Cancel</Button>

@@ -34,5 +34,6 @@ export const getPeopleForCompany = async (companyId: string) => {
 			eq(companyPeople.id, companyPersonRoles.companyPersonId),
 		)
 		.innerJoin(roles, eq(companyPersonRoles.roleId, roles.id))
-		.where(eq(companyPeople.companyId, companyId));
+		.where(eq(companyPeople.companyId, companyId))
+		.orderBy(people.fullName);
 };

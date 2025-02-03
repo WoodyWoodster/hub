@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { passwordSchema } from '../people/password-schema';
 
-export const signUpCompanySchema = z.object({
+export type RegisterCompanyValues = z.infer<typeof registerCompanySchema>;
+
+export const registerCompanySchema = z.object({
 	person: z
 		.object({
 			fullName: z

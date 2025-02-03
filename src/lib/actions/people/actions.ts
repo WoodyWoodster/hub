@@ -11,30 +11,29 @@ import {
 	companyPersonRoles,
 	peopleAddresses,
 } from '@/db/schema';
-import { addPersonSchema } from '@/lib/schemas/people/add-person-schema';
+import {
+	addPersonSchema,
+	AddPersonValues,
+} from '@/lib/schemas/people/add-person-schema';
 import { count, eq } from 'drizzle-orm';
-import { revalidatePath, unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
-export async function addPersonAction(formData: FormData) {
-	const defaultValues = z
-		.record(z.string(), z.string())
-		.parse(Object.fromEntries(formData.entries()));
-
+export async function addPersonAction(data: AddPersonValues) {
 	try {
-		const data = addPersonSchema.parse(Object.fromEntries(formData));
+		const validatedData = addPersonSchema.parse(data);
 
 		const validatedPerson: typeof people.$inferInsert = {
-			email: data.email,
-			fullName: data.fullName,
-			dateOfBirth: data.dateOfBirth,
+			email: validatedData.email,
+			fullName: validatedData.fullName,
+			dateOfBirth: validatedData.dateOfBirth,
 		};
 
 		const validatedAddress: typeof addresses.$inferInsert = {
-			street: data.street,
-			city: data.city,
-			state: data.state,
-			zipCode: data.zipCode,
+			street: validatedData.street,
+			city: validatedData.city,
+			state: validatedData.state,
+			zipCode: validatedData.zipCode,
 		};
 
 		try {
@@ -96,25 +95,12 @@ export async function addPersonAction(formData: FormData) {
 		} catch (error) {
 			console.error(error);
 			return {
-				defaultValues,
 				success: false,
 				errors: { form: 'An unexpected error occurred' },
 			};
 		}
 
-		revalidatePath('/people');
-
 		return {
-			defaultValues: {
-				fullName: '',
-				email: '',
-				dateOfBirth: '',
-				hireDate: '',
-				street: '',
-				city: '',
-				state: '',
-				zipCode: '',
-			},
 			success: true,
 			errors: null,
 		};
@@ -122,7 +108,6 @@ export async function addPersonAction(formData: FormData) {
 		if (error instanceof z.ZodError) {
 			const fieldErrors = error.flatten().fieldErrors;
 			return {
-				defaultValues,
 				success: false,
 				errors: fieldErrors,
 			};
@@ -130,7 +115,6 @@ export async function addPersonAction(formData: FormData) {
 
 		console.error(error);
 		return {
-			defaultValues,
 			success: false,
 			errors: { form: 'An unexpected error occurred' },
 		};

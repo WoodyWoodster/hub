@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
 	DropdownMenu,
-	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
@@ -12,20 +11,25 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-	ColumnDef,
-	ColumnFiltersState,
+	type ColumnDef,
+	type ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	SortingState,
+	type SortingState,
 	useReactTable,
-	VisibilityState,
+	type VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-import { FC, useState } from 'react';
-import { AddPersonButton } from '../../buttons/people/add-person-button';
+import {
+	MoreHorizontal,
+	Filter,
+	ChevronDown,
+	Download,
+	ArrowUpDown,
+} from 'lucide-react';
+import { useState } from 'react';
 import {
 	Table,
 	TableBody,
@@ -35,26 +39,24 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { useQuery } from '@tanstack/react-query';
+import { getPeopleForCompany } from '@/lib/queries/roles/queries';
+import { useSession } from 'next-auth/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/custom/badge';
+import { AddPersonButton } from '@/components/custom/buttons/people/add-person-button';
 
-interface Person {
+interface Columns {
 	id: string;
 	fullName: string;
 	email: string;
 	role: string | null;
 	dateOfBirth: string;
+	hireDate: string | null;
 }
 
-export interface Role {
-	id: string;
-	name: string;
-}
-
-interface PeopleTableProps {
-	people: Person[];
-	roles: Role[];
-}
-
-export const columns: ColumnDef<Person>[] = [
+export const columns: ColumnDef<Columns>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -79,38 +81,51 @@ export const columns: ColumnDef<Person>[] = [
 	},
 	{
 		accessorKey: 'fullName',
-		header: 'Full Name',
-		cell: ({ row }) => <div>{row.getValue('fullName')}</div>,
-	},
-	{
-		accessorKey: 'email',
 		header: ({ column }) => {
 			return (
-				<Button
-					variant="ghost"
+				<div
+					className="flex items-center space-x-2"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Email
-					<ArrowUpDown />
-				</Button>
+					<span>Employee</span>
+					<Button variant="ghost" className="h-8 w-8 p-0">
+						<span className="sr-only">Sort</span>
+						<ArrowUpDown className="h-4 w-4" />
+					</Button>
+				</div>
 			);
 		},
-		cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+		cell: ({ row }) => (
+			<div className="flex items-center gap-3">
+				<Avatar className="h-8 w-8">
+					<AvatarImage src={`https://avatar.vercel.sh/${row.original.email}`} />
+					<AvatarFallback>{row.getValue('fullName')}</AvatarFallback>
+				</Avatar>
+				<div className="flex flex-col">
+					<span className="font-medium">{row.getValue('fullName')}</span>
+					<span className="text-muted-foreground text-sm">
+						{row.original.email}
+					</span>
+				</div>
+			</div>
+		),
+	},
+	{
+		accessorKey: 'status',
+		header: 'Status',
+		cell: () => <Badge variant="purple">{'Status Example'}</Badge>,
 	},
 	{
 		accessorKey: 'role',
 		header: 'Role',
-		cell: ({ row }) => <div>{row.getValue('role')}</div>,
 	},
 	{
 		accessorKey: 'dateOfBirth',
 		header: 'Date of Birth',
-		cell: ({ row }) => <div>{row.getValue('dateOfBirth')}</div>,
 	},
 	{
 		accessorKey: 'hireDate',
 		header: 'Hire Date',
-		cell: ({ row }) => <div>{row.getValue('hireDate')}</div>,
 	},
 	{
 		id: 'actions',
@@ -119,39 +134,48 @@ export const columns: ColumnDef<Person>[] = [
 			const person = row.original;
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() =>
-								navigator.clipboard.writeText(person.id.toString())
-							}
-						>
-							Copy person ID
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>View details</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex items-center justify-between">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<span className="sr-only">Open menu</span>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuItem
+								onClick={() =>
+									navigator.clipboard.writeText(person.id.toString())
+								}
+							>
+								Copy person ID
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem>View details</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			);
 		},
 	},
 ];
 
-export const PeopleTable: FC<PeopleTableProps> = ({ people, roles }) => {
+export const PeopleTable = () => {
+	const { data: session } = useSession();
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
+	const [isSearchFocused, setIsSearchFocused] = useState(false);
+	const { data: people } = useQuery({
+		queryKey: ['people'],
+		queryFn: () => getPeopleForCompany(session?.user?.companyId as string),
+		enabled: !!session?.user?.companyId,
+	});
 
 	const table = useReactTable({
-		data: people,
+		data: people ?? [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -170,123 +194,205 @@ export const PeopleTable: FC<PeopleTableProps> = ({ people, roles }) => {
 	});
 
 	return (
-		<>
-			<h1 className="font-display mb-6 text-3xl font-semibold">People</h1>
-			<div className="w-full">
-				<div className="flex items-center justify-between py-4">
-					<Input
-						placeholder="Search..."
-						value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-						onChange={(event) =>
-							table.getColumn('email')?.setFilterValue(event.target.value)
-						}
-						className="max-w-sm bg-white"
-					/>
-					<div className="flex items-center space-x-2">
-						<AddPersonButton roles={roles} />
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="secondary" className="ml-auto">
-									Columns <ChevronDown />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								{table
-									.getAllColumns()
-									.filter((column) => column.getCanHide())
-									.map((column) => {
-										return (
-											<DropdownMenuCheckboxItem
-												key={column.id}
-												className="capitalize"
-												checked={column.getIsVisible()}
-												onCheckedChange={(value) =>
-													column.toggleVisibility(!!value)
-												}
-											>
-												{column.id}
-											</DropdownMenuCheckboxItem>
-										);
-									})}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</div>
-				<div className="rounded-md border">
-					<Table className="w-full bg-white">
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead key={header.id}>
-												{header.isPlaceholder
-													? null
-													: flexRender(
-															header.column.columnDef.header,
-															header.getContext(),
-														)}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow
-										key={row.id}
-										data-state={row.getIsSelected() && 'selected'}
-									>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
-											</TableCell>
-										))}
-									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-24 text-center"
-									>
-										No results.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-				<div className="flex items-center justify-end space-x-2 py-4">
-					<div className="text-muted-foreground flex-1 text-sm">
-						{table.getFilteredSelectedRowModel().rows.length} of{' '}
-						{table.getFilteredRowModel().rows.length} row(s) selected.
-					</div>
-					<div className="space-x-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
-						>
-							Previous
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
-						>
-							Next
-						</Button>
-					</div>
-				</div>
+		<div className="w-full space-y-4">
+			<div>
+				<h2 className="text-2xl font-semibold">People</h2>
+				<p className="text-muted-foreground py-2 text-sm">
+					Here you can manage your team members. You can adjust their roles,
+					classes and more.
+				</p>
 			</div>
-		</>
+			<Card className="w-full">
+				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+					<div className="flex items-center space-x-2">
+						<h3 className="text-lg font-semibold">Roster</h3>
+						<Badge
+							variant="secondary"
+							className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
+						>
+							{people?.length ?? 0} Users
+						</Badge>
+					</div>
+					<div className="flex items-center space-x-2"></div>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center space-x-2">
+								<Input
+									placeholder="Search..."
+									value={
+										(table.getColumn('fullName')?.getFilterValue() as string) ??
+										''
+									}
+									onChange={(event) =>
+										table
+											.getColumn('fullName')
+											?.setFilterValue(event.target.value)
+									}
+									onFocus={() => setIsSearchFocused(true)}
+									onBlur={() => setIsSearchFocused(false)}
+									className={`bg-white transition-all duration-150 ease-in-out ${isSearchFocused ? 'w-[325px]' : 'w-[250px]'}`}
+								/>
+								<Button
+									variant="secondary"
+									size="sm"
+									className="hover:bg-primary h-9 hover:text-white"
+								>
+									Active
+								</Button>
+								<Button
+									variant="secondary"
+									size="sm"
+									className="hover:bg-primary h-9 hover:text-white"
+								>
+									Archive
+								</Button>
+							</div>
+							<div className="flex items-center space-x-2">
+								<AddPersonButton />
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="outline">
+											All Statuses <ChevronDown className="ml-2 h-4 w-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										{/* Status options */}
+									</DropdownMenuContent>
+								</DropdownMenu>
+								<Button variant="outline">
+									<Filter className="mr-2 h-4 w-4" /> Filter
+								</Button>
+								<Button variant="outline" size="sm">
+									<Download className="mr-2 h-4 w-4" />
+									Download
+								</Button>
+							</div>
+						</div>
+						<div className="rounded-lg border bg-white shadow-sm">
+							<Table>
+								<TableHeader>
+									{table.getHeaderGroups().map((headerGroup) => (
+										<TableRow
+											key={headerGroup.id}
+											className="hover:bg-transparent"
+										>
+											{headerGroup.headers.map((header) => {
+												return (
+													<TableHead
+														key={header.id}
+														className="border-grey-200 border bg-gray-50/50 px-4 py-3 text-left text-sm font-medium text-gray-500"
+													>
+														{header.isPlaceholder
+															? null
+															: flexRender(
+																	header.column.columnDef.header,
+																	header.getContext(),
+																)}
+													</TableHead>
+												);
+											})}
+										</TableRow>
+									))}
+								</TableHeader>
+								<TableBody>
+									{table.getRowModel().rows?.length ? (
+										table.getRowModel().rows.map((row) => (
+											<TableRow
+												key={row.id}
+												data-state={row.getIsSelected() && 'selected'}
+												className="hover:bg-gray-50/50"
+											>
+												{row.getVisibleCells().map((cell) => (
+													<TableCell
+														key={cell.id}
+														className="border border-gray-200 p-2"
+													>
+														{flexRender(
+															cell.column.columnDef.cell,
+															cell.getContext(),
+														)}
+													</TableCell>
+												))}
+											</TableRow>
+										))
+									) : (
+										<TableRow>
+											<TableCell
+												colSpan={columns.length}
+												className="h-24 text-center"
+											>
+												No results.
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</div>
+						<div className="flex items-center justify-between p-4">
+							<div className="flex items-center space-x-2">
+								<span className="text-muted-foreground text-sm">Show</span>
+								<select
+									className="border-input bg-background ring-offset-background h-8 rounded-md border px-3 py-1 text-sm"
+									value={table.getState().pagination.pageSize}
+									onChange={(e) => {
+										table.setPageSize(Number(e.target.value));
+									}}
+								>
+									{[10, 20, 30, 40, 50].map((pageSize) => (
+										<option key={pageSize} value={pageSize}>
+											{pageSize}
+										</option>
+									))}
+								</select>
+								<span className="text-muted-foreground text-sm">Items</span>
+							</div>
+							<div className="flex items-center space-x-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => table.previousPage()}
+									disabled={!table.getCanPreviousPage()}
+								>
+									Previous
+								</Button>
+								{table.getPageCount() > 0 &&
+									Array.from(
+										{ length: table.getPageCount() },
+										(_, i) => i + 1,
+									).map((pageNumber) => (
+										<Button
+											key={pageNumber}
+											variant={
+												pageNumber === table.getState().pagination.pageIndex + 1
+													? 'default'
+													: 'outline'
+											}
+											size="sm"
+											onClick={() => table.setPageIndex(pageNumber - 1)}
+											className={
+												pageNumber === table.getState().pagination.pageIndex + 1
+													? 'bg-[#2F855A] hover:bg-[#276749]'
+													: ''
+											}
+										>
+											{pageNumber}
+										</Button>
+									))}
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => table.nextPage()}
+									disabled={!table.getCanNextPage()}
+								>
+									Next
+								</Button>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
 	);
 };

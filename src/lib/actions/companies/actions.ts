@@ -6,51 +6,27 @@ import {
 	addresses,
 	companies,
 	companyAddresses,
+	companyOnboardingProgress,
 	companyPeople,
 	companyPersonRoles,
+	onboardingSteps,
 	people,
 	roles,
 } from '@/db/schema';
-import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
 import { isErr } from '@/types/result';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { createStripeCustomerAction } from '../stripe/actions';
+import { ADMIN_ROLE_NAME } from '@/lib/constants/onboarding';
+import { RegisterCompanyValues } from '@/lib/schemas/companies';
 
-export async function signUpCompanyAction(formData: FormData) {
-	console.log('formData', formData);
-	const validatedFields = signUpCompanySchema.safeParse({
-		person: {
-			fullName: formData.get('person.fullName'),
-			email: formData.get('person.email'),
-			dateOfBirth: formData.get('person.dateOfBirth'),
-			password: formData.get('person.password'),
-			confirmPassword: formData.get('person.confirmPassword'),
-		},
-		company: {
-			name: formData.get('company.name'),
-			website: formData.get('company.website'),
-			industry: formData.get('company.industry'),
-			size: formData.get('company.size'),
-		},
-		address: {
-			street: formData.get('address.street'),
-			city: formData.get('address.city'),
-			state: formData.get('address.state'),
-			zipCode: formData.get('address.zipCode'),
-		},
-	});
-
-	if (!validatedFields.success) {
-		return { error: validatedFields.error.flatten().fieldErrors };
-	}
-
-	const { person, company, address } = validatedFields.data;
-
-	console.log('person', person);
-	console.log('company', company);
-	console.log('address', address);
-
+export async function registerCompanyAction({
+	company,
+	person,
+	address,
+}: RegisterCompanyValues) {
+	console.log('Processing company registration');
 	let userAttributes = {};
-
+	let companyId = '';
 	try {
 		await db.transaction(async (tx) => {
 			const [insertedCompany] = await tx
@@ -73,6 +49,7 @@ export async function signUpCompanyAction(formData: FormData) {
 				.values({
 					companyId: insertedCompany.id,
 					personId: insertedPerson.id,
+					isDefault: true,
 				})
 				.returning({ id: companyPeople.id });
 
@@ -84,12 +61,22 @@ export async function signUpCompanyAction(formData: FormData) {
 			const [externalAdminRole] = await tx
 				.select()
 				.from(roles)
-				.where(sql`name = 'Admin'`);
+				.where(sql`name = ${ADMIN_ROLE_NAME}`);
 
 			await tx.insert(companyPersonRoles).values({
 				companyPersonId: insertCompanyPerson.id,
 				roleId: externalAdminRole.id,
 			});
+
+			const steps = await db.select().from(onboardingSteps);
+
+			await tx.insert(companyOnboardingProgress).values(
+				steps.map((step) => ({
+					companyId: insertedCompany.id,
+					stepId: step.id,
+					isCompleted: false,
+				})),
+			);
 
 			userAttributes = {
 				email: person.email,
@@ -105,6 +92,7 @@ export async function signUpCompanyAction(formData: FormData) {
 					},
 				]),
 			};
+			companyId = insertedCompany.id;
 		});
 
 		const result = await createUser(
@@ -114,8 +102,21 @@ export async function signUpCompanyAction(formData: FormData) {
 		);
 
 		if (isErr(result)) {
+			console.log('Failed to create user', result.error);
 			return { error: result.error };
 		}
+
+		const stripeCustomer = await createStripeCustomerAction(
+			person.email,
+			company.name,
+		);
+
+		await db
+			.update(companies)
+			.set({
+				stripeCustomerId: stripeCustomer.id,
+			})
+			.where(eq(companies.id, companyId));
 
 		return { success: true };
 	} catch (error) {

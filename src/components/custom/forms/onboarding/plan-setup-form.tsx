@@ -28,34 +28,53 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { planSetupSchema } from '@/lib/schemas/onboarding/plan-setup-schema';
+import { toast } from '@/hooks/use-toast';
+import {
+	planSetupSchema,
+	PlanSetupValues,
+} from '@/lib/schemas/onboarding/plan-setup-schema';
+import { createHraPlan } from '@/lib/services/hraPlanService';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { track } from '@vercel/analytics/react';
 import { X } from 'lucide-react';
-import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 export function PlanSetupForm() {
 	const [showAutoPay, setShowAutoPay] = useState(false);
 	const [showWarningModal, setShowWarningModal] = useState(false);
+	const session = useSession();
+	const router = useRouter();
 
-	const form = useForm<z.infer<typeof planSetupSchema>>({
+	const form = useForm<PlanSetupValues>({
 		resolver: zodResolver(planSetupSchema),
 		defaultValues: {
 			plan: {
+				companyId: '',
 				startDate: '',
 				eligibleEmployees: '',
 				participatingEmployees: '',
 				autopay: false,
+				selectedPlan: 'Starter',
 			},
 		},
 	});
 
-	const startDate = form.watch('plan.startDate');
-	const eligibleEmployees = form.watch('plan.eligibleEmployees');
-	const participatingEmployees = form.watch('plan.participatingEmployees');
-	const autopay = form.watch('plan.autopay');
+	useEffect(() => {
+		if (session.data?.user?.companyId) {
+			form.setValue('plan.companyId', session.data.user.companyId);
+		}
+	}, [session.data?.user?.companyId, form]);
+
+	const {
+		startDate,
+		eligibleEmployees,
+		participatingEmployees,
+		autopay,
+		selectedPlan,
+	} = form.watch('plan');
 
 	useEffect(() => {
 		if (startDate && eligibleEmployees && participatingEmployees) {
@@ -67,6 +86,16 @@ export function PlanSetupForm() {
 		const eligibleCount = Number(eligibleEmployees);
 		const participatingCount = Number(participatingEmployees);
 
+		if (participatingCount > eligibleCount) {
+			form.setError('plan.participatingEmployees', {
+				type: 'manual',
+				message: 'Participating employees cannot exceed eligible employees',
+			});
+			setShowAutoPay(false);
+		} else {
+			form.clearErrors('plan.participatingEmployees');
+		}
+
 		if (
 			(eligibleCount >= 50 || participatingCount >= 50) &&
 			!isNaN(eligibleCount) &&
@@ -74,20 +103,53 @@ export function PlanSetupForm() {
 		) {
 			setShowWarningModal(true);
 		}
-	}, [startDate, eligibleEmployees, participatingEmployees]);
+	}, [
+		startDate,
+		eligibleEmployees,
+		participatingEmployees,
+		autopay,
+		selectedPlan,
+		form,
+	]);
 
 	const handleGoToChat = () => {
 		console.log('Redirecting to chat...');
 	};
+
+	async function onSubmit(data: PlanSetupValues) {
+		const result = await createHraPlan(data);
+		if (result?.error) {
+			console.error('Error creating HRA plan:', result.error);
+			toast({
+				title: 'Error',
+				description: 'Failed to create HRA plan. Please try again.',
+				variant: 'destructive',
+			});
+			return;
+		}
+
+		track('HRA Plan Created', {
+			companyId: data.plan.companyId,
+			startDate: data.plan.startDate,
+		});
+		toast({
+			title: 'HRA plan created successfully!',
+			description: 'Your HRA plan has been created successfully.',
+		});
+		router.push('/onboarding/plan-structure');
+	}
 
 	const getNextSixMonths = () => {
 		const months = [];
 		const date = new Date();
 		for (let i = 0; i < 6; i++) {
 			date.setMonth(date.getMonth() + 1);
-			months.push(
-				date.toLocaleString('default', { month: 'long', year: 'numeric' }),
-			);
+			const displayValue = date.toLocaleString('default', {
+				month: 'long',
+				year: 'numeric',
+			});
+			const dbValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+			months.push({ display: displayValue, value: dbValue });
 		}
 		return months;
 	};
@@ -138,7 +200,7 @@ export function PlanSetupForm() {
 			<div className="mt-8 w-full">
 				<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
 					<Form {...form}>
-						<form className="space-y-8">
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 							<Progress value={50} className="w-full" />
 							<div className="space-y-8">
 								<div>
@@ -149,39 +211,49 @@ export function PlanSetupForm() {
 										<FormField
 											control={form.control}
 											name="plan.startDate"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${fieldState.error ? 'text-critical-700' : 'text-gray-900'}`}
+													>
 														When would you like your HRA to start?
 													</FormLabel>
 													<Select
 														onValueChange={field.onChange}
-														defaultValue={field.value}
+														value={field.value}
 													>
 														<FormControl>
 															<SelectTrigger>
 																<SelectValue placeholder="Select a start date" />
 															</SelectTrigger>
 														</FormControl>
-
 														<SelectContent>
 															{getNextSixMonths().map((month) => (
-																<SelectItem key={month} value={month}>
-																	{month}
+																<SelectItem
+																	key={month.value}
+																	value={month.value}
+																>
+																	{month.display}
 																</SelectItem>
 															))}
 														</SelectContent>
 													</Select>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="plan.eligibleEmployees"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
 														How many benefit eligible employees do you have?
 													</FormLabel>
 													<FormControl>
@@ -191,16 +263,22 @@ export function PlanSetupForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="plan.participatingEmployees"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
 														How many participating employees do you have?
 													</FormLabel>
 													<FormControl>
@@ -210,7 +288,7 @@ export function PlanSetupForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -254,22 +332,58 @@ export function PlanSetupForm() {
 											</div>
 
 											<div className="mt-6 grid grid-cols-2 gap-4">
-												<Button
-													type="button"
-													variant={autopay ? 'default' : 'outline'}
-													className={`h-24 ${autopay ? 'border-primary border-2' : ''}`}
-													onClick={() => form.setValue('plan.autopay', true)}
-												>
-													Yes
-												</Button>
-												<Button
-													type="button"
-													variant={autopay === false ? 'default' : 'outline'}
-													className={`h-24 ${autopay === false ? 'border-primary border-2' : ''}`}
-													onClick={() => form.setValue('plan.autopay', false)}
-												>
-													No
-												</Button>
+												<FormField
+													control={form.control}
+													name="plan.autopay"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<Button
+																	type="button"
+																	variant={field.value ? 'default' : 'outline'}
+																	className={`h-24 w-full ${field.value ? 'border-primary border-2' : ''}`}
+																	onClick={() => {
+																		field.onChange(true);
+																		form.setValue(
+																			'plan.selectedPlan',
+																			'Growth',
+																		);
+																	}}
+																>
+																	Yes
+																</Button>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
+												<FormField
+													control={form.control}
+													name="plan.autopay"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<Button
+																	type="button"
+																	variant={
+																		field.value === false
+																			? 'default'
+																			: 'outline'
+																	}
+																	className={`h-24 w-full ${field.value === false ? 'border-primary border-2' : ''}`}
+																	onClick={() => {
+																		field.onChange(false);
+																		form.setValue(
+																			'plan.selectedPlan',
+																			'Starter',
+																		);
+																	}}
+																>
+																	No
+																</Button>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
 											</div>
 
 											{autopay !== undefined && (
@@ -315,12 +429,9 @@ export function PlanSetupForm() {
 									</div>
 								)}
 							</div>
-							<div className="flex justify-between">
-								<Button variant="outline" type="button">
-									<Link href="/sign-up">Back</Link>
-								</Button>
-								<Button type="submit">Continue</Button>
-							</div>
+							<Button className="w-full" type="submit">
+								{form.formState.isSubmitting ? 'Loading...' : 'Continue'}
+							</Button>
 						</form>
 					</Form>
 				</div>

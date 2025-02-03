@@ -9,12 +9,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { signUpCompanyAction } from '@/lib/actions/companies/actions';
 import { usStates } from '@/lib/us-states';
 import { Progress } from '@/components/ui/progress';
-import { signUpCompanySchema } from '@/lib/schemas/companies/sign-up-company-schema';
+import {
+	registerCompanySchema,
+	RegisterCompanyValues,
+} from '@/lib/schemas/companies';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import {
 	Form,
 	FormControl,
@@ -26,12 +27,13 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/hooks/use-toast';
 import { track } from '@vercel/analytics/react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { registerCompany } from '@/lib/services/companyService';
 
-export function SignUpForm() {
-	const form = useForm<z.infer<typeof signUpCompanySchema>>({
-		resolver: zodResolver(signUpCompanySchema),
-		// TODO: Remove the nested objects and use flat structure
+export function RegistrationForm() {
+	const router = useRouter();
+	const form = useForm<RegisterCompanyValues>({
+		resolver: zodResolver(registerCompanySchema),
 		defaultValues: {
 			person: {
 				fullName: '',
@@ -55,30 +57,16 @@ export function SignUpForm() {
 		},
 	});
 
-	// TODO: Simplify this when I flatten the schema
-	async function onSubmit(data: z.infer<typeof signUpCompanySchema>) {
-		console.log(data);
-		const formData = new FormData();
-		Object.entries(data).forEach(([key, value]) => {
-			if (typeof value === 'object') {
-				Object.entries(value).forEach(([subKey, subValue]) => {
-					formData.append(`${key}.${subKey}`, subValue as string);
-				});
-			} else {
-				formData.append(key, value);
-			}
-		});
-
-		const result = await signUpCompanyAction(formData);
-
-		if (result.error) {
+	async function onSubmit(data: RegisterCompanyValues) {
+		const result = await registerCompany(data);
+		if (result?.error) {
 			console.log(result.error);
-		} else if (result.success) {
-			// TODO: Should eventually just sign in the user
-			// and redirect to next page of onboarding
+			return;
+		} else {
 			track('Signed Up', {
 				companyName: data.company.name,
 			});
+			router.push('/onboarding/plan-setup');
 		}
 
 		toast({
@@ -108,22 +96,38 @@ export function SignUpForm() {
 										<FormField
 											control={form.control}
 											name="person.fullName"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Full Name</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Full Name
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="John Doe" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="person.email"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Email</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Email
+													</FormLabel>
 													<FormControl>
 														<Input
 															type="email"
@@ -131,29 +135,45 @@ export function SignUpForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="person.dateOfBirth"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>Date of Birth</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Date of Birth
+													</FormLabel>
 													<FormControl>
 														<Input type="date" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="person.password"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Password</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Password
+													</FormLabel>
 													<FormControl>
 														<Input
 															type="password"
@@ -161,16 +181,24 @@ export function SignUpForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="person.confirmPassword"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Confirm Password</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Confirm Password
+													</FormLabel>
 													<FormControl>
 														<Input
 															type="password"
@@ -178,7 +206,7 @@ export function SignUpForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -192,22 +220,38 @@ export function SignUpForm() {
 										<FormField
 											control={form.control}
 											name="company.name"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Company Name</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Company Name
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="ACME Inc" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="company.website"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Website</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Website
+													</FormLabel>
 													<FormControl>
 														<Input
 															type="url"
@@ -215,16 +259,24 @@ export function SignUpForm() {
 															{...field}
 														/>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="company.industry"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Industry</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Industry
+													</FormLabel>
 													<FormControl>
 														<Select
 															onValueChange={field.onChange}
@@ -248,16 +300,24 @@ export function SignUpForm() {
 															</SelectContent>
 														</Select>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="company.size"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-3">
-													<FormLabel>Company Size</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Company Size
+													</FormLabel>
 													<FormControl>
 														<Select
 															onValueChange={field.onChange}
@@ -285,7 +345,7 @@ export function SignUpForm() {
 															</SelectContent>
 														</Select>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
@@ -299,35 +359,59 @@ export function SignUpForm() {
 										<FormField
 											control={form.control}
 											name="address.street"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-6">
-													<FormLabel>Street Address</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														Street Address
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="123 Main St" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="address.city"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>City</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														City
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="Richardson" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="address.state"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>State</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														State
+													</FormLabel>
 													<FormControl>
 														<Select
 															onValueChange={field.onChange}
@@ -348,32 +432,36 @@ export function SignUpForm() {
 															</SelectContent>
 														</Select>
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 										<FormField
 											control={form.control}
 											name="address.zipCode"
-											render={({ field }) => (
+											render={({ field, fieldState }) => (
 												<FormItem className="sm:col-span-2">
-													<FormLabel>ZIP Code</FormLabel>
+													<FormLabel
+														className={`text-base font-medium ${
+															fieldState.error
+																? 'text-critical-700'
+																: 'text-gray-900'
+														}`}
+													>
+														ZIP Code
+													</FormLabel>
 													<FormControl>
 														<Input placeholder="12345" {...field} />
 													</FormControl>
-													<FormMessage />
+													<FormMessage className="text-critical-700 mt-1.5 text-sm" />
 												</FormItem>
 											)}
 										/>
 									</div>
 								</div>
 							</div>
-							<Button type="submit" className="w-full">
-								<Link href="/onboarding/plan-setup">
-									{form.formState.isSubmitting
-										? 'Adding Company...'
-										: 'Add Company'}
-								</Link>
+							<Button className="w-full" type="submit">
+								{form.formState.isSubmitting ? 'Registering...' : 'Register'}
 							</Button>
 						</form>
 					</Form>
