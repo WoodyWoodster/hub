@@ -31,8 +31,10 @@ import { HelpCircle, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { CustomClassForm } from '../classes/custom-class-form';
+import { useEffect, useState } from 'react';
 
 export function PlanStructureForm() {
+	const [showCustomClasses, setShowCustomClasses] = useState(false);
 	const router = useRouter();
 	const form = useForm({
 		defaultValues: {
@@ -41,6 +43,12 @@ export function PlanStructureForm() {
 			monthsPerYear: '',
 		},
 	});
+
+	useEffect(() => {
+		if (showCustomClasses) {
+			setShowCustomClasses(true);
+		}
+	}, [showCustomClasses]);
 
 	return (
 		<div className="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
@@ -94,9 +102,9 @@ export function PlanStructureForm() {
 
 										<Card className="p-4">
 											<div className="flex items-start gap-2">
-												<HelpCircle className="h-5 w-5 flex-shrink-0 text-gray-500" />
+												<HelpCircle className="text-primary h-5 w-5 flex-shrink-0" />
 												<div className="space-y-2">
-													<p className="font-medium">
+													<p className="font-medium text-gray-900">
 														ICHRA classes help employers prioritize their health
 														benefits budget.
 													</p>
@@ -145,84 +153,86 @@ export function PlanStructureForm() {
 											</p>
 										</div>
 
-										<div className="space-y-6">
-											<h3 className="text-lg font-medium text-gray-900">
-												Next, we&apos;ll help you design your employee classes
-												and reimbursement structure for each class.
-											</h3>
-											<p className="text-gray-600">
-												You will need to assign your classes and set
-												reimbursement amounts for each employee class.
-												Don&apos;t worry, we&apos;ll help you make sure your
-												classes are compliant!
-											</p>
+										{showCustomClasses && (
+											<div className="space-y-6">
+												<h3 className="text-lg font-medium text-gray-900">
+													Next, we&apos;ll help you design your employee classes
+													and reimbursement structure for each class.
+												</h3>
+												<p className="text-gray-600">
+													You will need to assign your classes and set
+													reimbursement amounts for each employee class.
+													Don&apos;t worry, we&apos;ll help you make sure your
+													classes are compliant!
+												</p>
 
-											<div className="flex items-center gap-2">
-												<Input type="checkbox" className="h-4 w-4" />
-												<span className="text-sm">
-													Select All / Unselect All
-												</span>
-											</div>
-
-											<Card className="p-6">
-												<div className="space-y-4">
-													<div className="flex items-center gap-2">
-														<Input type="checkbox" className="h-4 w-4" />
-														<span className="font-medium">All Employees</span>
-													</div>
-													<div className="flex flex-wrap gap-2">
-														<Badge
-															variant="secondary"
-															className="bg-gray-100 text-gray-600"
-														>
-															All Geographic Areas
-														</Badge>
-														<Badge
-															variant="secondary"
-															className="bg-gray-100 text-gray-600"
-														>
-															All Employees Same Amount: $400
-														</Badge>
-														<Badge
-															variant="secondary"
-															className="bg-gray-100 text-gray-600"
-														>
-															Insurance Premiums Only
-														</Badge>
-														<Badge
-															variant="secondary"
-															className="bg-gray-100 text-gray-600"
-														>
-															Waiting Period: Immediately
-														</Badge>
-													</div>
+												<div className="flex items-center gap-2">
+													<Input type="checkbox" className="h-4 w-4" />
+													<span className="text-sm">
+														Select All / Unselect All
+													</span>
 												</div>
-											</Card>
 
-											<Drawer>
-												<DrawerTrigger asChild>
-													<Card className="flex cursor-pointer flex-col items-center justify-center p-8 hover:bg-gray-50">
-														<div className="rounded-full bg-green-50 p-3">
-															<Plus className="h-6 w-6 text-green-600" />
+												<Card className="p-6">
+													<div className="space-y-4">
+														<div className="flex items-center gap-2">
+															<Input type="checkbox" className="h-4 w-4" />
+															<span className="font-medium">All Employees</span>
 														</div>
-														<h3 className="mt-4 font-medium text-green-800">
-															Add new class
-														</h3>
-														<p className="text-sm text-gray-500">
-															Create a new class
-														</p>
-													</Card>
-												</DrawerTrigger>
-												<DrawerContent className="h-[90vh]">
-													<DrawerHeader>
-														<DrawerTitle>Create a new class</DrawerTitle>
-													</DrawerHeader>
-													<div className="overflow-y-auto px-4 pb-8">
-														<CustomClassForm />
+														<div className="flex flex-wrap gap-2">
+															<Badge
+																variant="secondary"
+																className="bg-gray-100 text-gray-600"
+															>
+																All Geographic Areas
+															</Badge>
+															<Badge
+																variant="secondary"
+																className="bg-gray-100 text-gray-600"
+															>
+																All Employees Same Amount: $400
+															</Badge>
+															<Badge
+																variant="secondary"
+																className="bg-gray-100 text-gray-600"
+															>
+																Insurance Premiums Only
+															</Badge>
+															<Badge
+																variant="secondary"
+																className="bg-gray-100 text-gray-600"
+															>
+																Waiting Period: Immediately
+															</Badge>
+														</div>
 													</div>
-												</DrawerContent>
-											</Drawer>
-										</div>
+												</Card>
+
+												<Drawer>
+													<DrawerTrigger asChild>
+														<Card className="flex cursor-pointer flex-col items-center justify-center p-8 hover:bg-gray-50">
+															<div className="rounded-full bg-green-50 p-3">
+																<Plus className="h-6 w-6 text-green-600" />
+															</div>
+															<h3 className="mt-4 font-medium text-green-800">
+																Add new class
+															</h3>
+															<p className="text-sm text-gray-500">
+																Create a new class
+															</p>
+														</Card>
+													</DrawerTrigger>
+													<DrawerContent className="h-[90vh]">
+														<DrawerHeader>
+															<DrawerTitle>Create a new class</DrawerTitle>
+														</DrawerHeader>
+														<div className="overflow-y-auto px-4 pb-8">
+															<CustomClassForm />
+														</div>
+													</DrawerContent>
+												</Drawer>
+											</div>
+										)}
 
 										<FormField
 											control={form.control}
