@@ -21,7 +21,7 @@ export default function Welcome() {
 			<div className="flex justify-between pt-8">
 				<div /> {/* Empty div for spacing since this is the first page */}
 				<Button
-					onClick={() => router.push('/shopping/personal-info')}
+					onClick={() => router.push('/shopping/intentions')}
 					className="bg-primary hover:bg-primary/90"
 				>
 					Get started
