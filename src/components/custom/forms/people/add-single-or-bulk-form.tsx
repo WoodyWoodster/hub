@@ -36,9 +36,6 @@ export const AddPersonOrBulkForm: React.FC<AddPersonOrBulkFormProps> = ({
 						<Label htmlFor="bulk">Bulk upload (CSV)</Label>
 					</div>
 				</RadioGroup>
-				<Button onClick={() => setFormType('single')} disabled={!formType}>
-					Continue
-				</Button>
 			</div>
 		);
 	}
