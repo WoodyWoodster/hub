@@ -1,6 +1,11 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+
 export default function Welcome() {
+	const router = useRouter();
+
 	return (
 		<div className="mx-auto max-w-2xl">
 			<h1 className="font-display text-onyx-700 text-center text-4xl font-medium">
@@ -13,6 +18,15 @@ export default function Welcome() {
 				reimbursement (such as a marketplace plan or a medicare plan), or choose
 				to waive coverage.
 			</p>
+			<div className="flex justify-between pt-8">
+				<div /> {/* Empty div for spacing since this is the first page */}
+				<Button
+					onClick={() => router.push('/shopping/personal-info')}
+					className="bg-primary hover:bg-primary/90"
+				>
+					Get started
+				</Button>
+			</div>
 		</div>
 	);
 }

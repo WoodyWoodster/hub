@@ -8,34 +8,9 @@ import {
 	SidebarProvider,
 	useSidebar,
 } from '@/components/ui/sidebar';
-import { Bell, Menu, Search, ChevronLeft } from 'lucide-react';
+import { Bell, Menu, Search } from 'lucide-react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname, useRouter } from 'next/navigation';
-import { navItems } from '@/lib/navItems';
-
-const pageVariants = {
-	initial: {
-		opacity: 0,
-		x: 20,
-	},
-	animate: {
-		opacity: 1,
-		x: 0,
-		transition: {
-			duration: 0.5,
-			ease: 'easeOut',
-		},
-	},
-	exit: {
-		opacity: 0,
-		x: -20,
-		transition: {
-			duration: 0.3,
-			ease: 'easeIn',
-		},
-	},
-};
+import { AnimatePresence } from 'framer-motion';
 
 function HeaderContent() {
 	const { setOpenMobile } = useSidebar();
@@ -66,20 +41,6 @@ export default function ShoppingLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const pathname = usePathname();
-	const router = useRouter();
-
-	// Find current page index in shopping flow
-	const currentPageIndex = navItems.shopping.findIndex(
-		(item) => item.url === pathname,
-	);
-	const previousPage =
-		currentPageIndex > 0 ? navItems.shopping[currentPageIndex - 1].url : null;
-	const nextPage =
-		currentPageIndex < navItems.shopping.length - 1
-			? navItems.shopping[currentPageIndex + 1].url
-			: null;
-
 	return (
 		<SidebarProvider>
 			<ShoppingSidebar />
@@ -88,44 +49,11 @@ export default function ShoppingLayout({
 					<HeaderContent />
 				</header>
 				<main className="px-8">
-					<AnimatePresence mode="wait">
-						<motion.div
-							key={pathname}
-							initial="initial"
-							animate="animate"
-							exit="exit"
-							variants={pageVariants}
-							className="mx-auto max-w-3xl py-12"
-						>
-							<div className="space-y-12">
-								{children}
-
-								<div className="flex justify-between pt-8">
-									{previousPage ? (
-										<Button
-											variant="ghost"
-											onClick={() => router.push(previousPage)}
-											className="flex items-center gap-2"
-										>
-											<ChevronLeft className="h-4 w-4" />
-											Back
-										</Button>
-									) : (
-										<div /> // Empty div for spacing
-									)}
-
-									{nextPage && (
-										<Button
-											onClick={() => router.push(nextPage)}
-											className="bg-primary hover:bg-primary/90"
-										>
-											Continue
-										</Button>
-									)}
-								</div>
-							</div>
-						</motion.div>
-					</AnimatePresence>
+					<div className="mx-auto max-w-3xl py-12">
+						<AnimatePresence mode="wait" initial={true}>
+							{children}
+						</AnimatePresence>
+					</div>
 				</main>
 			</SidebarInset>
 		</SidebarProvider>
