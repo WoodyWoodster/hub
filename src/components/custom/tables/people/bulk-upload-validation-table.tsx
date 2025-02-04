@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, type KeyboardEvent } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
 	Table,
 	TableBody,
@@ -12,14 +11,20 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { Roster, RosterSchema } from '@/lib/schemas/roster/schema';
+import { type Roster, RosterSchema } from '@/lib/schemas/roster/schema';
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+interface RowData {
+	data: Partial<Roster>;
+	errors: Record<string, string> | null;
+}
 
 export default function BulkUploadValidationTable({
 	data,
 	onDataChange,
 }: {
-	data: any[];
-	onDataChange: (newData: any[]) => void;
+	data: RowData[];
+	onDataChange: (newData: RowData[]) => void;
 }) {
 	const columns: (keyof Roster)[] = [
 		'First Name',
@@ -40,88 +45,105 @@ export default function BulkUploadValidationTable({
 		'Hire Date',
 		'DOB',
 	];
+
 	const [editingCell, setEditingCell] = useState<{
 		rowIndex: number;
-		column: string;
+		column: keyof Roster;
 	} | null>(null);
 	const [editValue, setEditValue] = useState<string>('');
 	const [selectedError, setSelectedError] = useState<string | null>(null);
-	const [sortColumn, setSortColumn] = useState<string | null>(null);
+	const [sortColumn, setSortColumn] = useState<keyof Roster | null>(null);
 	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-	const inputRef = useRef<HTMLInputElement>(null);
 
-	const handleSort = (column: keyof Roster) => {
-		if (sortColumn === column) {
-			setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-		} else {
-			setSortColumn(column);
-			setSortDirection('asc');
-		}
+	const parentRef = useRef<HTMLDivElement>(null);
 
-		const sortedData = [...data].sort((a, b) => {
-			if (a.data[column] < b.data[column])
-				return sortDirection === 'asc' ? -1 : 1;
-			if (a.data[column] > b.data[column])
-				return sortDirection === 'asc' ? 1 : -1;
-			return 0;
-		});
+	const rowVirtualizer = useVirtualizer({
+		count: data.length,
+		getScrollElement: () => parentRef.current,
+		estimateSize: useCallback(() => 48, []),
+		overscan: 10,
+		scrollPaddingStart: 0,
+		scrollPaddingEnd: 0,
+	});
 
-		onDataChange(sortedData);
-	};
-
-	const handleCellClick = (rowIndex: number, column: keyof Roster) => {
-		if (data[rowIndex].errors && data[rowIndex].errors[column]) {
-			setSelectedError(`${column}: ${data[rowIndex].errors[column]}`);
-		} else {
-			setSelectedError(null);
-		}
-	};
-
-	const handleCellDoubleClick = (rowIndex: number, column: keyof Roster) => {
-		setEditingCell({ rowIndex, column });
-		setEditValue((data[rowIndex].data[column] as string) || '');
-	};
-
-	const handleCellChange = (value: string) => {
-		setEditValue(value);
-	};
-
-	const finishEditing = (
-		rowIndex: number,
-		column: keyof Roster,
-		value: string,
-	) => {
-		const newData = [...data];
-		newData[rowIndex].data[column] = value;
-
-		const validationResult = RosterSchema.safeParse(newData[rowIndex].data);
-
-		if (validationResult.success) {
-			newData[rowIndex].errors = null;
-		} else {
-			const errors: Record<string, string> = {};
-			validationResult.error.issues.forEach((issue) => {
-				errors[issue.path[0]] = issue.message;
+	const handleSort = useCallback(
+		(column: keyof Roster) => {
+			setSortColumn((currentColumn) => {
+				if (currentColumn === column) {
+					setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+				} else {
+					setSortDirection('asc');
+				}
+				return column;
 			});
-			newData[rowIndex].errors = errors;
-		}
 
-		onDataChange(newData);
-		setEditingCell(null);
-		setSelectedError(null);
-	};
+			const sortedData = [...data].sort((a, b) => {
+				const aValue = a.data[column];
+				const bValue = b.data[column];
 
-	const handleKeyDown = (
-		e: KeyboardEvent<HTMLInputElement>,
-		rowIndex: number,
-		column: keyof Roster,
-	) => {
-		if (e.key === 'Enter') {
-			finishEditing(rowIndex, column, editValue);
-		} else if (e.key === 'Escape') {
+				if (!aValue && !bValue) return 0;
+				if (!aValue) return 1;
+				if (!bValue) return -1;
+
+				const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+				return sortDirection === 'asc' ? comparison : -comparison;
+			});
+
+			onDataChange(sortedData);
+		},
+		[data, onDataChange, sortDirection],
+	);
+
+	const handleCellClick = useCallback(
+		(rowIndex: number, column: keyof Roster) => {
+			const row = data[rowIndex];
+			if (row?.errors?.[column]) {
+				setSelectedError(`${column}: ${row.errors[column]}`);
+			} else {
+				setSelectedError(null);
+			}
+		},
+		[data],
+	);
+
+	const handleCellDoubleClick = useCallback(
+		(rowIndex: number, column: keyof Roster) => {
+			setEditingCell({ rowIndex, column });
+			setEditValue((data[rowIndex]?.data[column] as string) || '');
+		},
+		[data],
+	);
+
+	const finishEditing = useCallback(
+		(rowIndex: number, column: keyof Roster, value: string) => {
+			const newData = [...data];
+			if (!newData[rowIndex]) return;
+
+			newData[rowIndex] = {
+				...newData[rowIndex],
+				data: {
+					...newData[rowIndex].data,
+					[column]: value,
+				},
+			};
+
+			const validationResult = RosterSchema.safeParse(newData[rowIndex].data);
+			if (validationResult.success) {
+				newData[rowIndex].errors = null;
+			} else {
+				const errors: Record<string, string> = {};
+				validationResult.error.issues.forEach((issue) => {
+					errors[issue.path[0]] = issue.message;
+				});
+				newData[rowIndex].errors = errors;
+			}
+
+			onDataChange(newData);
 			setEditingCell(null);
-		}
-	};
+			setSelectedError(null);
+		},
+		[data, onDataChange],
+	);
 
 	return (
 		<div className="overflow-x-auto">
@@ -130,60 +152,131 @@ export default function BulkUploadValidationTable({
 					Error: {selectedError}
 				</div>
 			)}
-			<Table className="w-full border-collapse">
-				<TableHeader>
-					<TableRow className="bg-gray-100">
-						{columns.map((column) => (
-							<TableHead
-								key={column}
-								onClick={() => handleSort(column)}
-								className="cursor-pointer border border-gray-300 p-2 text-left font-bold"
-							>
-								<div className="flex items-center justify-between">
-									{column}
-									{sortColumn === column &&
-										(sortDirection === 'asc' ? (
-											<ChevronUp className="h-4 w-4" />
-										) : (
-											<ChevronDown className="h-4 w-4" />
+			<div className="relative rounded border">
+				<div className="overflow-x-auto">
+					<div className="inline-block min-w-full align-middle">
+						<div className="overflow-hidden">
+							<Table className="min-w-full divide-y divide-gray-300">
+								<TableHeader className="sticky top-0 z-10 bg-gray-50">
+									<TableRow>
+										{columns.map((column) => (
+											<TableHead
+												key={column}
+												onClick={() => handleSort(column)}
+												className="group cursor-pointer border-r border-b px-3 py-3.5 text-left text-sm font-semibold text-gray-900 first:border-l"
+											>
+												<div className="flex items-center justify-between">
+													<span>{column}</span>
+													<span className="ml-2 flex-none rounded">
+														{sortColumn === column &&
+															(sortDirection === 'asc' ? (
+																<ChevronUp className="h-4 w-4" />
+															) : (
+																<ChevronDown className="h-4 w-4" />
+															))}
+													</span>
+												</div>
+											</TableHead>
 										))}
-								</div>
-							</TableHead>
-						))}
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{data.map((row, rowIndex) => (
-						<TableRow key={rowIndex} className="hover:bg-gray-50">
-							{columns.map((column) => (
-								<TableCell
-									key={column}
-									className={`border border-gray-300 p-2 ${row.errors && row.errors[column] ? 'bg-red-100' : ''}`}
-									onClick={() => handleCellClick(rowIndex, column)}
-									onDoubleClick={() => handleCellDoubleClick(rowIndex, column)}
-								>
-									{editingCell?.rowIndex === rowIndex &&
-									editingCell?.column === column ? (
-										<Input
-											ref={inputRef}
-											value={editValue}
-											onChange={(e) => handleCellChange(e.target.value)}
-											onBlur={() => finishEditing(rowIndex, column, editValue)}
-											onKeyDown={(e) => handleKeyDown(e, rowIndex, column)}
-											className="w-full rounded border border-gray-400 p-1"
-											autoFocus
-										/>
-									) : (
-										<span className="block min-h-[1.5rem] w-full">
-											{row.data[column] as string}
-										</span>
-									)}
-								</TableCell>
-							))}
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
+									</TableRow>
+								</TableHeader>
+							</Table>
+
+							<div ref={parentRef} className="max-h-[600px] overflow-y-auto">
+								<Table className="min-w-full divide-y divide-gray-300">
+									<TableBody className="divide-y divide-gray-200 bg-white">
+										<tr>
+											<td colSpan={columns.length}>
+												<div
+													style={{
+														height: `${rowVirtualizer.getTotalSize()}px`,
+														width: '100%',
+														position: 'relative',
+													}}
+												>
+													{rowVirtualizer
+														.getVirtualItems()
+														.map((virtualRow) => {
+															const row = data[virtualRow.index];
+															if (!row) return null;
+
+															return (
+																<TableRow
+																	key={virtualRow.index}
+																	className="absolute w-full"
+																	style={{
+																		height: `${virtualRow.size}px`,
+																		transform: `translateY(${virtualRow.start}px)`,
+																	}}
+																>
+																	{columns.map((column) => (
+																		<TableCell
+																			key={column}
+																			className={`border-r px-3 py-2 text-sm whitespace-nowrap first:border-l ${
+																				row.errors?.[column] ? 'bg-red-50' : ''
+																			}`}
+																			onClick={() =>
+																				handleCellClick(
+																					virtualRow.index,
+																					column,
+																				)
+																			}
+																			onDoubleClick={() =>
+																				handleCellDoubleClick(
+																					virtualRow.index,
+																					column,
+																				)
+																			}
+																		>
+																			{editingCell?.rowIndex ===
+																				virtualRow.index &&
+																			editingCell?.column === column ? (
+																				<Input
+																					value={editValue}
+																					onChange={(e) =>
+																						setEditValue(e.target.value)
+																					}
+																					onBlur={() =>
+																						finishEditing(
+																							virtualRow.index,
+																							column,
+																							editValue,
+																						)
+																					}
+																					onKeyDown={(e) => {
+																						if (e.key === 'Enter') {
+																							finishEditing(
+																								virtualRow.index,
+																								column,
+																								editValue,
+																							);
+																						} else if (e.key === 'Escape') {
+																							setEditingCell(null);
+																						}
+																					}}
+																					className="w-full"
+																					autoFocus
+																				/>
+																			) : (
+																				<span className="block truncate">
+																					{row.data[column] as string}
+																				</span>
+																			)}
+																		</TableCell>
+																	))}
+																</TableRow>
+															);
+														})}
+												</div>
+											</td>
+										</tr>
+									</TableBody>
+								</Table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
