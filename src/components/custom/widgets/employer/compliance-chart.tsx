@@ -34,17 +34,22 @@ const chartConfig = {
 export function ComplianceChart() {
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle className="text-muted-foreground text-lg font-normal">
-					Q1 Compliance
-				</CardTitle>
-				<Button variant="link" className="text-primary hover:text-primary/90">
-					Download Report
+			<CardHeader className="flex flex-row items-center justify-between space-y-2 sm:space-y-0">
+				<CardTitle className="text-lg sm:text-xl">Q1 Compliance</CardTitle>
+				<Button
+					className="flex h-auto items-center p-0"
+					variant="link"
+					size="sm"
+				>
+					<span className="block text-xs leading-none">View Details</span>
 				</Button>
 			</CardHeader>
 			<CardContent>
-				<div className="flex items-center justify-between">
-					<ChartContainer config={chartConfig} className="h-[260px] w-[260px]">
+				<div className="flex flex-col items-center justify-between md:flex-row">
+					<ChartContainer
+						config={chartConfig}
+						className="h-[160px] w-[full] lg:h-[160px] lg:w-[160px] xl:h-[200px] xl:w-[200px]"
+					>
 						<ResponsiveContainer>
 							<PieChart>
 								<ChartTooltip content={<ChartTooltipContent />} />

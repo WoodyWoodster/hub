@@ -1,11 +1,10 @@
 'use client';
 
-export default function Welcome() {
+export default function PersonalInformation() {
 	return (
 		<div className="mx-auto max-w-2xl">
-			<h1 className="font-display text-onyx-700 text-center text-4xl font-medium">
-				<span className="mb-1 block">Welcome to Take Command.</span>
-				<span>Let’s get some health insurance!</span>
+			<h1 className="font-display text-onyx-700 text-4xl font-medium">
+				Let’s add your information
 			</h1>
 			<p className="mt-6 text-lg font-medium text-gray-600">
 				You can purchase health insurance for you and/or your household, upload

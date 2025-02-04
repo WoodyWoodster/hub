@@ -2,6 +2,7 @@ import {
 	BookOpen,
 	Bot,
 	Building2,
+	CheckCircle2,
 	DollarSign,
 	LayoutDashboardIcon,
 	Library,
@@ -131,6 +132,53 @@ export const navItems = {
 			name: 'Resource Center',
 			url: '#',
 			icon: Library,
+		},
+	],
+	shopping: [
+		{
+			title: 'Personal Information',
+			url: '/shopping/personal-info',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Dependents',
+			url: '/shopping/household',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Household Income',
+			url: '/shopping/household-income',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Doctor Preferences',
+			url: '/shopping/doctors',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Hospital Preferences',
+			url: '/shopping/hospitals',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Prescription Preferences',
+			url: '/shopping/prescriptions',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Plan Selection',
+			url: '/shopping/plan-selection',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Carrier Questions',
+			url: '/shopping/carrier-questions',
+			icon: CheckCircle2,
+		},
+		{
+			title: 'Review',
+			url: '/shopping/review',
+			icon: CheckCircle2,
 		},
 	],
 };

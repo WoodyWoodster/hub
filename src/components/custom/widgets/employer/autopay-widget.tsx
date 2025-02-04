@@ -29,7 +29,7 @@ export function AutopayWidget({
 }: CardProps) {
 	return (
 		<Card className={cn('w-full', className)} {...props}>
-			<CardHeader className="flex flex-col items-start justify-between space-y-2 sm:flex-row sm:items-center sm:space-y-0">
+			<CardHeader className="flex flex-row items-center justify-between space-y-2 sm:space-y-0">
 				<CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
 				<Button
 					className="flex h-auto items-center p-0"

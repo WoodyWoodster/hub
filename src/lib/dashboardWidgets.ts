@@ -144,7 +144,7 @@ export const companyWidgets = {
 					updatedDate: today,
 				},
 				dispersement: {
-					title: 'Dispersement Account Balance',
+					title: 'Account Balance',
 					amount: '$52,311.29',
 					updatedDate: today,
 				},
