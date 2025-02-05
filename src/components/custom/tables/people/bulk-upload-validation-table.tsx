@@ -10,6 +10,13 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { type Roster, RosterSchema } from '@/lib/schemas/roster/schema';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -145,6 +152,8 @@ export default function BulkUploadValidationTable({
 		[data, onDataChange],
 	);
 
+	const roleOptions = ['Admin', 'Employee', 'Manager'];
+
 	return (
 		<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
 			{selectedError && (
@@ -155,8 +164,9 @@ export default function BulkUploadValidationTable({
 						</div>
 						<div className="ml-3">
 							<h3 className="text-sm font-medium text-red-800">
-								{selectedError}
+								Validation Error
 							</h3>
+							<div className="mt-2 text-sm text-red-700">{selectedError}</div>
 						</div>
 					</div>
 				</div>
@@ -235,32 +245,56 @@ export default function BulkUploadValidationTable({
 																>
 																	{editingCell?.rowIndex === virtualRow.index &&
 																	editingCell?.column === key ? (
-																		<Input
-																			value={editValue}
-																			onChange={(e) =>
-																				setEditValue(e.target.value)
-																			}
-																			onBlur={() =>
-																				finishEditing(
-																					virtualRow.index,
-																					key,
-																					editValue,
-																				)
-																			}
-																			onKeyDown={(e) => {
-																				if (e.key === 'Enter') {
+																		key === 'Role' ? (
+																			<Select
+																				value={editValue}
+																				onValueChange={(value) => {
+																					finishEditing(
+																						virtualRow.index,
+																						key,
+																						value,
+																					);
+																				}}
+																			>
+																				<SelectTrigger className="w-full">
+																					<SelectValue placeholder="Select a role" />
+																				</SelectTrigger>
+																				<SelectContent>
+																					{roleOptions.map((role) => (
+																						<SelectItem key={role} value={role}>
+																							{role}
+																						</SelectItem>
+																					))}
+																				</SelectContent>
+																			</Select>
+																		) : (
+																			<Input
+																				value={editValue}
+																				onChange={(e) =>
+																					setEditValue(e.target.value)
+																				}
+																				onBlur={() =>
 																					finishEditing(
 																						virtualRow.index,
 																						key,
 																						editValue,
-																					);
-																				} else if (e.key === 'Escape') {
-																					setEditingCell(null);
+																					)
 																				}
-																			}}
-																			className="w-full"
-																			autoFocus
-																		/>
+																				onKeyDown={(e) => {
+																					if (e.key === 'Enter') {
+																						finishEditing(
+																							virtualRow.index,
+																							key,
+																							editValue,
+																						);
+																					} else if (e.key === 'Escape') {
+																						setEditingCell(null);
+																					}
+																				}}
+																				className="w-full"
+																				autoFocus
+																			/>
+																		)
 																	) : (
 																		<span className="block truncate">
 																			{row.data[key] as string}
