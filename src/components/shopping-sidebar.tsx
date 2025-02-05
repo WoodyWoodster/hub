@@ -14,7 +14,7 @@ import {
 	SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { LogoPrimaryReversed } from '@/components/logo';
-import { navItems } from '@/lib/navItems';
+import { navItems, shoppingNavItems } from '@/lib/navItems';
 import { NavShopping } from '@/components/nav-shopping';
 
 export function ShoppingSidebar({
@@ -40,7 +40,7 @@ export function ShoppingSidebar({
 					<LogoPrimaryReversed />
 				</SidebarHeader>
 				<SidebarContent>
-					<NavShopping items={navItems.shopping} />
+					<NavShopping items={shoppingNavItems} />
 				</SidebarContent>
 				<SidebarFooter>
 					<NavResources resources={navItems.resources} />

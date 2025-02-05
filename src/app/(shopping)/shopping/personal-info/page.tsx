@@ -4,7 +4,7 @@ import { ShoppingPageWrapper } from '@/components/shopping-page-wrapper';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	Form,
@@ -22,34 +22,50 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
-	personalInfoSchema,
-	type PersonalInfoValues,
+	personalInfoStep1Schema,
+	type PersonalInfoStep1Values,
 } from '@/lib/schemas/shopping/personal-info-schema';
 
 export default function PersonalInformation() {
 	const router = useRouter();
 
-	const form = useForm<PersonalInfoValues>({
-		resolver: zodResolver(personalInfoSchema),
+	const form = useForm<PersonalInfoStep1Values>({
+		resolver: zodResolver(personalInfoStep1Schema),
 		defaultValues: {
 			firstName: '',
 			lastName: '',
 			dateOfBirth: '',
 			preferredName: '',
-			zipCode: '',
 			gender: 'other',
-			tobaccoUse: false,
-			medicaid: false,
-			acknowledgment: false,
 		},
 	});
 
-	function onSubmit(data: PersonalInfoValues) {
-		console.log(data);
-		router.push('/shopping/household');
+	// Add this to see validation errors
+	const onError = (errors: FieldErrors<PersonalInfoStep1Values>) => {
+		console.log('Form validation errors:', errors);
+	};
+
+	function onSubmit(data: PersonalInfoStep1Values) {
+		console.log('Form submitted with data:', data);
+
+		try {
+			// Save to localStorage
+			const existingData = JSON.parse(
+				localStorage.getItem('shopping-form') || '{}',
+			);
+			const completeData = {
+				...existingData,
+				...data,
+			};
+			localStorage.setItem('shopping-form', JSON.stringify(completeData));
+			console.log('Data saved successfully:', completeData);
+
+			// Navigate to next page
+			router.push('/shopping/personal-info/zip');
+		} catch (error) {
+			console.error('Error in form submission:', error);
+		}
 	}
 
 	return (
@@ -63,7 +79,10 @@ export default function PersonalInformation() {
 			</p>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<form
+					onSubmit={form.handleSubmit(onSubmit, onError)}
+					className="space-y-8"
+				>
 					<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
 						<FormField
 							control={form.control}
@@ -106,7 +125,8 @@ export default function PersonalInformation() {
 								</FormItem>
 							)}
 						/>
-
+					</div>
+					<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 						<FormField
 							control={form.control}
 							name="dateOfBirth"
@@ -144,105 +164,6 @@ export default function PersonalInformation() {
 									</Select>
 									<FormMessage />
 								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="zipCode"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>ZIP Code</FormLabel>
-									<FormControl className="bg-white">
-										<Input
-											placeholder="Enter your ZIP code"
-											maxLength={5}
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
-
-					<div className="space-y-4">
-						<FormField
-							control={form.control}
-							name="tobaccoUse"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-md mb-4 block font-medium">
-										Have you used tobacco products in the last 6 months?
-									</FormLabel>
-									<FormControl>
-										<RadioGroup
-											onValueChange={(value) => field.onChange(value === 'yes')}
-											defaultValue={field.value ? 'yes' : 'no'}
-											className="flex flex-col space-y-0"
-										>
-											<div className="flex items-center space-x-2">
-												<RadioGroupItem value="yes" id="tobacco-yes" />
-												<label htmlFor="tobacco-yes">Yes</label>
-											</div>
-											<div className="flex items-center space-x-2">
-												<RadioGroupItem value="no" id="tobacco-no" />
-												<label htmlFor="tobacco-no">No</label>
-											</div>
-										</RadioGroup>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="medicaid"
-							render={({ field }) => (
-								<FormItem className="flex flex-col items-start space-y-0 space-x-3">
-									<FormLabel className="text-md mb-4 block font-medium">
-										Are you currently enrolled in Medicaid?
-									</FormLabel>
-									<FormControl>
-										<RadioGroup
-											onValueChange={(value) => field.onChange(value === 'yes')}
-											defaultValue={field.value ? 'yes' : 'no'}
-											className="flex flex-col space-y-0"
-										>
-											<div className="flex items-center space-x-2">
-												<RadioGroupItem value="yes" id="medicaid-yes" />
-												<label htmlFor="medicaid-yes">Yes</label>
-											</div>
-											<div className="flex items-center space-x-2">
-												<RadioGroupItem value="no" id="medicaid-no" />
-												<label htmlFor="medicaid-no">No</label>
-											</div>
-										</RadioGroup>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="acknowledgment"
-							render={({ field }) => (
-								<div className="mt-8">
-									<FormItem className="flex flex-row items-start space-y-0 space-x-3">
-										<FormControl>
-											<Checkbox
-												checked={field.value}
-												onCheckedChange={field.onChange}
-											/>
-										</FormControl>
-										<div className="space-y-1 leading-none">
-											<FormLabel>
-												I acknowledge that the information provided is accurate
-												and complete
-											</FormLabel>
-										</div>
-									</FormItem>
-								</div>
 							)}
 						/>
 					</div>

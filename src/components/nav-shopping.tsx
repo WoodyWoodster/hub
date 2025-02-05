@@ -25,9 +25,7 @@ export function NavShopping({
 }: {
 	items: {
 		title: string;
-		url: string;
 		icon?: LucideIcon;
-		isActive?: boolean;
 		items?: {
 			title: string;
 			url: string;
@@ -35,6 +33,16 @@ export function NavShopping({
 	}[];
 }) {
 	const pathname = usePathname();
+
+	const isPersonalInfoSection = (items: { url: string }[]) => {
+		return items?.some(
+			(item) =>
+				item.url.startsWith('/shopping/personal-info') ||
+				item.url.startsWith('/shopping/medicaid') ||
+				item.url.startsWith('/shopping/tobacco') ||
+				item.url.startsWith('/shopping/household'),
+		);
+	};
 
 	return (
 		<SidebarGroup>
@@ -45,27 +53,31 @@ export function NavShopping({
 							<Collapsible
 								key={item.title}
 								asChild
-								defaultOpen={pathname.startsWith(item.url)}
+								defaultOpen={isPersonalInfoSection(item.items)}
 								className="group/collapsible"
 							>
 								<SidebarMenuItem>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuButton tooltip={item.title} asChild>
-											<Link href={item.url}>
+										<SidebarMenuButton tooltip={item.title}>
+											<div className="flex w-full items-center">
 												{item.icon && <item.icon />}
-												<span>{item.title}</span>
+												<span className="ml-2 block text-sm">{item.title}</span>
 												<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-											</Link>
+											</div>
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
 										<SidebarMenuSub>
 											{item.items?.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton asChild>
-														<a href={subItem.url}>
+													<SidebarMenuSubButton
+														asChild
+														isActive={pathname === subItem.url}
+														className="hover:bg-seafoam-600 data-[active=true]:bg-seafoam-600 active:bg-seafoam-600 !text-white"
+													>
+														<Link href={subItem.url}>
 															<span>{subItem.title}</span>
-														</a>
+														</Link>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}
@@ -73,20 +85,6 @@ export function NavShopping({
 									</CollapsibleContent>
 								</SidebarMenuItem>
 							</Collapsible>
-						)}
-						{!item.items && (
-							<SidebarMenuItem key={item.title}>
-								<SidebarMenuButton
-									isActive={pathname.startsWith(item.url)}
-									tooltip={item.title}
-									asChild
-								>
-									<Link href={item.url}>
-										{item.icon && <item.icon />}
-										<span>{item.title}</span>
-									</Link>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
 						)}
 					</React.Fragment>
 				))}

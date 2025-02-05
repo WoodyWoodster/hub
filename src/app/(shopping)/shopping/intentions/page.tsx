@@ -79,7 +79,7 @@ export default function Intentions() {
 				</div>
 			</RadioGroup.Root>
 
-			<div className="flex justify-end gap-12 pt-8">
+			<div className="flex justify-between gap-12 pt-8">
 				<Button
 					variant="outline"
 					onClick={() => router.push('/shopping')}
