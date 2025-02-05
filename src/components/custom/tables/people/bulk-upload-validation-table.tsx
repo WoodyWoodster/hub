@@ -62,7 +62,7 @@ export default function BulkUploadValidationTable({
 		getScrollElement: () => parentRef.current,
 		estimateSize: useCallback(() => 48, []),
 		overscan: 10,
-		scrollPaddingStart: 0,
+		scrollPaddingStart: 48,
 		scrollPaddingEnd: 0,
 	});
 
@@ -146,135 +146,138 @@ export default function BulkUploadValidationTable({
 	);
 
 	return (
-		<div className="overflow-x-auto">
+		<div className="rounded-lg border border-gray-200 bg-white shadow">
 			{selectedError && (
-				<div className="mt-4 rounded border border-red-300 bg-red-100 p-2 text-red-700">
-					Error: {selectedError}
+				<div className="mb-4 rounded-md bg-red-50 p-4">
+					<div className="flex">
+						<div className="flex-shrink-0">
+							<span className="text-red-400">!</span>
+						</div>
+						<div className="ml-3">
+							<h3 className="text-sm font-medium text-red-800">
+								Validation Error
+							</h3>
+							<div className="mt-2 text-sm text-red-700">{selectedError}</div>
+						</div>
+					</div>
 				</div>
 			)}
 			<div className="relative rounded border">
 				<div className="overflow-x-auto">
-					<div className="inline-block min-w-full align-middle">
-						<div className="overflow-hidden">
-							<Table className="min-w-full divide-y divide-gray-300">
-								<TableHeader className="sticky top-0 z-10 bg-gray-50">
-									<TableRow>
-										{columns.map((column) => (
-											<TableHead
-												key={column}
-												onClick={() => handleSort(column)}
-												className="group cursor-pointer border-r border-b px-3 py-3.5 text-left text-sm font-semibold text-gray-900 first:border-l"
-											>
-												<div className="flex items-center justify-between">
-													<span>{column}</span>
-													<span className="ml-2 flex-none rounded">
-														{sortColumn === column &&
-															(sortDirection === 'asc' ? (
-																<ChevronUp className="h-4 w-4" />
-															) : (
-																<ChevronDown className="h-4 w-4" />
-															))}
-													</span>
-												</div>
-											</TableHead>
-										))}
-									</TableRow>
-								</TableHeader>
-							</Table>
+					<Table>
+						<TableHeader className="sticky top-0 z-10 bg-gray-50">
+							<TableRow>
+								{columns.map((column) => (
+									<TableHead
+										key={column}
+										onClick={() => handleSort(column)}
+										className="group cursor-pointer px-6 py-4 text-sm font-medium text-gray-500 first:pl-4 last:pr-4"
+									>
+										<div className="flex items-center gap-2">
+											<span>{column}</span>
+											{sortColumn === column && (
+												<span className="text-gray-400">
+													{sortDirection === 'asc' ? (
+														<ChevronUp className="h-4 w-4" />
+													) : (
+														<ChevronDown className="h-4 w-4" />
+													)}
+												</span>
+											)}
+										</div>
+									</TableHead>
+								))}
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							<TableRow>
+								<TableCell colSpan={columns.length} className="p-0">
+									<div
+										ref={parentRef}
+										className="max-h-[600px] overflow-y-auto"
+									>
+										<div
+											style={{
+												height: `${rowVirtualizer.getTotalSize()}px`,
+												width: '100%',
+												position: 'relative',
+											}}
+										>
+											{rowVirtualizer.getVirtualItems().map((virtualRow) => {
+												const row = data[virtualRow.index];
+												if (!row) return null;
 
-							<div ref={parentRef} className="max-h-[600px] overflow-y-auto">
-								<Table className="min-w-full divide-y divide-gray-300">
-									<TableBody className="divide-y divide-gray-200 bg-white">
-										<tr>
-											<td colSpan={columns.length}>
-												<div
-													style={{
-														height: `${rowVirtualizer.getTotalSize()}px`,
-														width: '100%',
-														position: 'relative',
-													}}
-												>
-													{rowVirtualizer
-														.getVirtualItems()
-														.map((virtualRow) => {
-															const row = data[virtualRow.index];
-															if (!row) return null;
-
-															return (
-																<TableRow
-																	key={virtualRow.index}
-																	className="absolute w-full"
-																	style={{
-																		height: `${virtualRow.size}px`,
-																		transform: `translateY(${virtualRow.start}px)`,
-																	}}
+												return (
+													<div
+														key={virtualRow.index}
+														className="absolute w-full border-b"
+														style={{
+															height: `${virtualRow.size}px`,
+															transform: `translateY(${virtualRow.start}px)`,
+														}}
+													>
+														<div className="flex h-full">
+															{columns.map((column) => (
+																<div
+																	key={column}
+																	className={`flex-1 px-6 py-4 text-sm text-gray-900 first:pl-4 last:pr-4 ${
+																		row.errors?.[column] ? 'bg-red-50' : ''
+																	}`}
+																	onClick={() =>
+																		handleCellClick(virtualRow.index, column)
+																	}
+																	onDoubleClick={() =>
+																		handleCellDoubleClick(
+																			virtualRow.index,
+																			column,
+																		)
+																	}
 																>
-																	{columns.map((column) => (
-																		<TableCell
-																			key={column}
-																			className={`border-r px-3 py-2 text-sm whitespace-nowrap first:border-l ${
-																				row.errors?.[column] ? 'bg-red-50' : ''
-																			}`}
-																			onClick={() =>
-																				handleCellClick(
+																	{editingCell?.rowIndex === virtualRow.index &&
+																	editingCell?.column === column ? (
+																		<Input
+																			value={editValue}
+																			onChange={(e) =>
+																				setEditValue(e.target.value)
+																			}
+																			onBlur={() =>
+																				finishEditing(
 																					virtualRow.index,
 																					column,
+																					editValue,
 																				)
 																			}
-																			onDoubleClick={() =>
-																				handleCellDoubleClick(
-																					virtualRow.index,
-																					column,
-																				)
-																			}
-																		>
-																			{editingCell?.rowIndex ===
-																				virtualRow.index &&
-																			editingCell?.column === column ? (
-																				<Input
-																					value={editValue}
-																					onChange={(e) =>
-																						setEditValue(e.target.value)
-																					}
-																					onBlur={() =>
-																						finishEditing(
-																							virtualRow.index,
-																							column,
-																							editValue,
-																						)
-																					}
-																					onKeyDown={(e) => {
-																						if (e.key === 'Enter') {
-																							finishEditing(
-																								virtualRow.index,
-																								column,
-																								editValue,
-																							);
-																						} else if (e.key === 'Escape') {
-																							setEditingCell(null);
-																						}
-																					}}
-																					className="w-full"
-																					autoFocus
-																				/>
-																			) : (
-																				<span className="block truncate">
-																					{row.data[column] as string}
-																				</span>
-																			)}
-																		</TableCell>
-																	))}
-																</TableRow>
-															);
-														})}
-												</div>
-											</td>
-										</tr>
-									</TableBody>
-								</Table>
-							</div>
-						</div>
-					</div>
+																			onKeyDown={(e) => {
+																				if (e.key === 'Enter') {
+																					finishEditing(
+																						virtualRow.index,
+																						column,
+																						editValue,
+																					);
+																				} else if (e.key === 'Escape') {
+																					setEditingCell(null);
+																				}
+																			}}
+																			className="focus:border-primary focus:ring-primary w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
+																			autoFocus
+																		/>
+																	) : (
+																		<span className="block truncate">
+																			{row.data[column] as string}
+																		</span>
+																	)}
+																</div>
+															))}
+														</div>
+													</div>
+												);
+											})}
+										</div>
+									</div>
+								</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
 				</div>
 			</div>
 		</div>
