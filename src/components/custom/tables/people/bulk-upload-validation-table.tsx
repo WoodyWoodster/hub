@@ -26,25 +26,27 @@ export default function BulkUploadValidationTable({
 	data: RowData[];
 	onDataChange: (newData: RowData[]) => void;
 }) {
-	const columns: (keyof Roster)[] = [
-		'First Name',
-		'Middle Name',
-		'Last Name',
-		'Preferred Name',
-		'Email',
-		'Phone Number',
-		'Employee Number',
-		'Role',
-		'Address',
-		'Address 2',
-		'City',
-		'Zip Code',
-		'County',
-		'State',
-		'Employment Type',
-		'Hire Date',
-		'DOB',
+	const columnConfig = [
+		{ key: 'First Name' as keyof Roster, width: '120px' },
+		{ key: 'Middle Name' as keyof Roster, width: '120px' },
+		{ key: 'Last Name' as keyof Roster, width: '120px' },
+		{ key: 'Preferred Name' as keyof Roster, width: '120px' },
+		{ key: 'Email' as keyof Roster, width: '250px' },
+		{ key: 'Phone Number' as keyof Roster, width: '150px' },
+		{ key: 'Employee Number' as keyof Roster, width: '150px' },
+		{ key: 'Role' as keyof Roster, width: '200px' },
+		{ key: 'Address' as keyof Roster, width: '200px' },
+		{ key: 'Address 2' as keyof Roster, width: '150px' },
+		{ key: 'City' as keyof Roster, width: '150px' },
+		{ key: 'Zip Code' as keyof Roster, width: '120px' },
+		{ key: 'County' as keyof Roster, width: '150px' },
+		{ key: 'State' as keyof Roster, width: '100px' },
+		{ key: 'Employment Type' as keyof Roster, width: '150px' },
+		{ key: 'Hire Date' as keyof Roster, width: '120px' },
+		{ key: 'DOB' as keyof Roster, width: '120px' },
 	];
+
+	const columns = columnConfig.map((config) => config.key);
 
 	const [editingCell, setEditingCell] = useState<{
 		rowIndex: number;
@@ -61,9 +63,7 @@ export default function BulkUploadValidationTable({
 		count: data.length,
 		getScrollElement: () => parentRef.current,
 		estimateSize: useCallback(() => 48, []),
-		overscan: 10,
-		scrollPaddingStart: 48,
-		scrollPaddingEnd: 0,
+		overscan: 5,
 	});
 
 	const handleSort = useCallback(
@@ -146,7 +146,7 @@ export default function BulkUploadValidationTable({
 	);
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white shadow">
+		<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
 			{selectedError && (
 				<div className="mb-4 rounded-md bg-red-50 p-4">
 					<div className="flex">
@@ -162,20 +162,21 @@ export default function BulkUploadValidationTable({
 					</div>
 				</div>
 			)}
-			<div className="relative rounded border">
+			<div className="overflow-hidden">
 				<div className="overflow-x-auto">
-					<Table>
+					<Table className="w-full border-collapse">
 						<TableHeader className="sticky top-0 z-10 bg-gray-50">
-							<TableRow>
-								{columns.map((column) => (
+							<TableRow className="border-b border-gray-200">
+								{columnConfig.map(({ key, width }) => (
 									<TableHead
-										key={column}
-										onClick={() => handleSort(column)}
-										className="group cursor-pointer px-6 py-4 text-sm font-medium text-gray-500 first:pl-4 last:pr-4"
+										key={key}
+										onClick={() => handleSort(key)}
+										style={{ width, minWidth: width }}
+										className="border-r border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-medium text-gray-500 first:border-l"
 									>
 										<div className="flex items-center gap-2">
-											<span>{column}</span>
-											{sortColumn === column && (
+											<span>{key}</span>
+											{sortColumn === key && (
 												<span className="text-gray-400">
 													{sortDirection === 'asc' ? (
 														<ChevronUp className="h-4 w-4" />
@@ -190,7 +191,7 @@ export default function BulkUploadValidationTable({
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							<TableRow>
+							<TableRow className="relative">
 								<TableCell colSpan={columns.length} className="p-0">
 									<div
 										ref={parentRef}
@@ -210,31 +211,31 @@ export default function BulkUploadValidationTable({
 												return (
 													<div
 														key={virtualRow.index}
-														className="absolute w-full border-b"
+														className="absolute top-0 left-0 w-full border-b border-gray-200"
 														style={{
 															height: `${virtualRow.size}px`,
 															transform: `translateY(${virtualRow.start}px)`,
 														}}
 													>
 														<div className="flex h-full">
-															{columns.map((column) => (
+															{columnConfig.map(({ key, width }) => (
 																<div
-																	key={column}
-																	className={`flex-1 px-6 py-4 text-sm text-gray-900 first:pl-4 last:pr-4 ${
-																		row.errors?.[column] ? 'bg-red-50' : ''
+																	key={key}
+																	style={{ width, minWidth: width }}
+																	className={`flex items-center border-r border-gray-200 px-4 py-2 text-sm first:border-l ${
+																		row.errors?.[key]
+																			? 'bg-red-50'
+																			: 'bg-white hover:bg-gray-50/50'
 																	}`}
 																	onClick={() =>
-																		handleCellClick(virtualRow.index, column)
+																		handleCellClick(virtualRow.index, key)
 																	}
 																	onDoubleClick={() =>
-																		handleCellDoubleClick(
-																			virtualRow.index,
-																			column,
-																		)
+																		handleCellDoubleClick(virtualRow.index, key)
 																	}
 																>
 																	{editingCell?.rowIndex === virtualRow.index &&
-																	editingCell?.column === column ? (
+																	editingCell?.column === key ? (
 																		<Input
 																			value={editValue}
 																			onChange={(e) =>
@@ -243,7 +244,7 @@ export default function BulkUploadValidationTable({
 																			onBlur={() =>
 																				finishEditing(
 																					virtualRow.index,
-																					column,
+																					key,
 																					editValue,
 																				)
 																			}
@@ -251,19 +252,19 @@ export default function BulkUploadValidationTable({
 																				if (e.key === 'Enter') {
 																					finishEditing(
 																						virtualRow.index,
-																						column,
+																						key,
 																						editValue,
 																					);
 																				} else if (e.key === 'Escape') {
 																					setEditingCell(null);
 																				}
 																			}}
-																			className="focus:border-primary focus:ring-primary w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
+																			className="w-full"
 																			autoFocus
 																		/>
 																	) : (
 																		<span className="block truncate">
-																			{row.data[column] as string}
+																			{row.data[key] as string}
 																		</span>
 																	)}
 																</div>
