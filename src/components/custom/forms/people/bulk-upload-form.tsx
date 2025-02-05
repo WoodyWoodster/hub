@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkUploadValidationTable from '../../tables/people/bulk-upload-validation-table';
 import { submitPeople, uploadCSV } from '@/lib/actions/roster/actions';
+import { Card } from '@/components/ui/card';
 
 interface BulkUploadFormProps {
 	onSuccess: () => void;
@@ -60,30 +61,39 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 					<p>Updated: {result.updated}</p>
 				</div>
 			),
+			variant: 'success',
 		});
 		onSuccess();
 	};
 
 	const errorCount = validationResults.filter((r) => r.errors).length;
-	const totalErrors = validationResults.reduce(
-		(acc, r) => acc + (r.errors ? Object.keys(r.errors).length : 0),
-		0,
-	);
 
 	return (
-		<div className="p-6">
+		<Card className="p-6">
 			<form onSubmit={handleSubmit(onSubmit)} className="mb-4">
-				<Input type="file" accept=".csv" {...register('file')} />
-				<Button type="submit" className="mt-2" disabled={isLoading}>
-					{isLoading ? (
-						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							Processing
-						</>
-					) : (
-						'Upload and Validate'
+				<div className="flex flex-col">
+					<Input type="file" accept=".csv" {...register('file')} />
+					<Button
+						type="submit"
+						variant="outline"
+						className="mt-2"
+						disabled={isLoading}
+					>
+						{isLoading ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Processing
+							</>
+						) : (
+							'Upload and Validate'
+						)}
+					</Button>
+					{!errorCount && validationResults.length > 0 && (
+						<Button onClick={handleDataSubmit} className="mt-4">
+							Submit Valid Data
+						</Button>
 					)}
-				</Button>
+				</div>
 			</form>
 
 			{isLoading && (
@@ -95,9 +105,8 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 			{errorCount > 0 && (
 				<div className="mt-4 rounded bg-yellow-100 p-2 text-yellow-700">
 					There {errorCount === 1 ? 'is' : 'are'} {errorCount} row
-					{errorCount !== 1 ? 's' : ''} with errors. Total of {totalErrors}{' '}
-					error{totalErrors !== 1 ? 's' : ''}. Click on highlighted cells to see
-					specific errors.
+					{errorCount !== 1 ? 's' : ''} out of {validationResults.length} with
+					errors. Click on highlighted cells to see specific errors.
 				</div>
 			)}
 			{!isLoading && validationResults.length > 0 && (
@@ -106,11 +115,8 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 						data={validationResults}
 						onDataChange={handleDataChange}
 					/>
-					<Button onClick={handleDataSubmit} className="mt-4">
-						Submit Valid Data
-					</Button>
 				</div>
 			)}
-		</div>
+		</Card>
 	);
 };
