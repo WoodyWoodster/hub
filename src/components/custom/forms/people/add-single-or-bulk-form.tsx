@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { AddPersonForm } from './add-person-form';
 import { BulkUploadForm } from './bulk-upload-form';
+import { Card } from '@/components/ui/card';
 
 interface AddPersonOrBulkFormProps {
 	onSuccess: () => void;
@@ -19,7 +20,7 @@ export const AddPersonOrBulkForm: React.FC<AddPersonOrBulkFormProps> = ({
 
 	if (formType === null) {
 		return (
-			<div className="space-y-6 p-6">
+			<Card className="space-y-6 p-6">
 				<h3 className="text-lg font-medium">
 					How would you like to add people?
 				</h3>
@@ -35,7 +36,7 @@ export const AddPersonOrBulkForm: React.FC<AddPersonOrBulkFormProps> = ({
 						<Label htmlFor="bulk">Bulk upload (CSV)</Label>
 					</div>
 				</RadioGroup>
-			</div>
+			</Card>
 		);
 	}
 
