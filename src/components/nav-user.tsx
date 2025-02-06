@@ -45,18 +45,11 @@ export function NavUser() {
 			.join(''),
 	};
 	// TODO: Consider moving this out of the component
-	const {
-		data: companies,
-		isLoading,
-		error,
-	} = useQuery({
+	const { data: companies } = useQuery({
 		queryKey: ['companies', user.id],
 		queryFn: () => getCompaniesForPerson(user.id),
 		enabled: !!user.id,
 	});
-
-	if (isLoading) return <div>Loading...</div>;
-	if (error) return <div>Error loading companies</div>;
 
 	return (
 		<SidebarMenu>
@@ -67,8 +60,8 @@ export function NavUser() {
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							<Avatar className="rounded-lg">
-								<AvatarImage src={user.image} alt={user.name} />
+							<Avatar className="h-8 w-8 rounded-lg">
+								<AvatarImage src={`https://avatar.vercel.sh/${user.email}`} />
 								<AvatarFallback className="rounded-lg">
 									{user.initials}
 								</AvatarFallback>
@@ -92,8 +85,8 @@ export function NavUser() {
 					>
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-								<Avatar className="rounded-lg">
-									<AvatarImage src={user.image} alt={user.name} />
+								<Avatar className="h-8 w-8 rounded-lg">
+									<AvatarImage src={`https://avatar.vercel.sh/${user.email}`} />
 									<AvatarFallback className="rounded-lg">
 										{user.initials}
 									</AvatarFallback>

@@ -72,6 +72,7 @@ export function RegistrationForm() {
 		toast({
 			title: 'Welcome to HRA Hub!! 🎉',
 			description: 'You have successfully signed up! 🚀',
+			variant: 'success',
 		});
 	}
 

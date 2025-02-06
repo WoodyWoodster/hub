@@ -135,6 +135,7 @@ export function PlanSetupForm() {
 		toast({
 			title: 'HRA plan created successfully!',
 			description: 'Your HRA plan has been created successfully.',
+			variant: 'success',
 		});
 		router.push('/onboarding/plan-structure');
 	}

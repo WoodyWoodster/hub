@@ -87,6 +87,7 @@ export const AddPersonForm: FC<AddPersonFormProps> = ({ onSuccess }) => {
 		toast({
 			title: `${values.fullName} added successfully!`,
 			description: `${values.fullName} will receive an invite email when they are eligible to begin shopping.`,
+			variant: 'success',
 		});
 	};
 
