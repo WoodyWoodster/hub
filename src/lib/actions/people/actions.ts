@@ -15,11 +15,18 @@ import {
 	addPersonSchema,
 	AddPersonValues,
 } from '@/lib/schemas/people/add-person-schema';
-import { count, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 
-export async function addPersonAction(data: AddPersonValues) {
+type AddPersonResult = {
+	success: boolean;
+	errors: Record<string, string[]> | null;
+};
+
+export async function addPersonAction(
+	data: AddPersonValues,
+): Promise<AddPersonResult> {
 	try {
 		const validatedData = addPersonSchema.parse(data);
 
@@ -53,42 +60,20 @@ export async function addPersonAction(data: AddPersonValues) {
 					addressId: insertedAddress.id,
 				});
 
-				const companyPeopleCount = await tx
-					.select({
-						count: count(),
+				const [insertedCompanyPerson] = await tx
+					.insert(companyPeople)
+					.values({
+						personId: insertedPerson.id,
+						companyId: validatedData.companyId,
+						hireDate: validatedData.hireDate,
+						isDefault: true,
 					})
-					.from(companyPeople);
+					.returning({ id: companyPeople.id });
 
-				if (companyPeopleCount[0].count) {
-					const [insertedCompanyPerson] = await tx
-						.insert(companyPeople)
-						.values({
-							personId: insertedPerson.id,
-							companyId: data.companyId,
-							hireDate: data.hireDate,
-							isDefault: true,
-						})
-						.returning({ id: companyPeople.id });
-
-					await tx.insert(companyPersonRoles).values({
-						companyPersonId: insertedCompanyPerson.id,
-						roleId: data.roleId,
-					});
-				} else {
-					const [insertedCompanyPerson] = await tx
-						.insert(companyPeople)
-						.values({
-							personId: insertedPerson.id,
-							companyId: data.companyId,
-							hireDate: data.hireDate,
-						})
-						.returning({ id: companyPeople.id });
-
-					await tx.insert(companyPersonRoles).values({
-						companyPersonId: insertedCompanyPerson.id,
-						roleId: data.roleId,
-					});
-				}
+				await tx.insert(companyPersonRoles).values({
+					companyPersonId: insertedCompanyPerson.id,
+					roleId: validatedData.roleId,
+				});
 
 				// TODO: Create a new user in the Cognito user pool
 			});
@@ -96,7 +81,7 @@ export async function addPersonAction(data: AddPersonValues) {
 			console.error(error);
 			return {
 				success: false,
-				errors: { form: 'An unexpected error occurred' },
+				errors: { form: ['An unexpected error occurred'] },
 			};
 		}
 
@@ -106,7 +91,10 @@ export async function addPersonAction(data: AddPersonValues) {
 		};
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			const fieldErrors = error.flatten().fieldErrors;
+			const fieldErrors: Record<string, string[]> = {};
+			for (const [key, value] of Object.entries(error.flatten().fieldErrors)) {
+				fieldErrors[key] = Array.isArray(value) ? value : [value!.toString()];
+			}
 			return {
 				success: false,
 				errors: fieldErrors,
@@ -116,9 +104,84 @@ export async function addPersonAction(data: AddPersonValues) {
 		console.error(error);
 		return {
 			success: false,
-			errors: { form: 'An unexpected error occurred' },
+			errors: { form: ['An unexpected error occurred'] },
 		};
 	}
+}
+
+export async function bulkAddPersonAction(
+	validatedPeople: AddPersonValues[],
+): Promise<{
+	created: number;
+	errors: Record<number, Record<string, string[]>> | null;
+}> {
+	const errors: Record<number, Record<string, string[]>> = {};
+	let created = 0;
+
+	await db.transaction(async (tx) => {
+		try {
+			const insertedPeople = await tx
+				.insert(people)
+				.values(
+					validatedPeople.map((person) => ({
+						email: person.email,
+						fullName: person.fullName,
+						dateOfBirth: person.dateOfBirth,
+					})),
+				)
+				.returning({ id: people.id });
+
+			const insertedAddresses = await tx
+				.insert(addresses)
+				.values(
+					validatedPeople.map((person) => ({
+						street: person.street,
+						city: person.city,
+						state: person.state,
+						zipCode: person.zipCode,
+					})),
+				)
+				.returning({ id: addresses.id });
+
+			await tx.insert(peopleAddresses).values(
+				insertedPeople.map((person, index) => ({
+					personId: person.id,
+					addressId: insertedAddresses[index].id,
+				})),
+			);
+
+			const insertedCompanyPeople = await tx
+				.insert(companyPeople)
+				.values(
+					insertedPeople.map((person, index) => ({
+						personId: person.id,
+						companyId: validatedPeople[index].companyId,
+						hireDate: validatedPeople[index].hireDate,
+						isDefault: true,
+					})),
+				)
+				.returning({ id: companyPeople.id });
+
+			await tx.insert(companyPersonRoles).values(
+				insertedCompanyPeople.map((companyPerson, index) => ({
+					companyPersonId: companyPerson.id,
+					roleId: validatedPeople[index].roleId,
+				})),
+			);
+
+			created = validatedPeople.length;
+		} catch (error) {
+			console.error('Error in bulk insertion:', error);
+			errors[0] = {
+				form: ['An unexpected error occurred during bulk insertion'],
+			};
+		}
+	});
+
+	return {
+		created,
+		errors: Object.keys(errors).length > 0 ? errors : null,
+	};
 }
 
 export const getPeople = unstable_cache(

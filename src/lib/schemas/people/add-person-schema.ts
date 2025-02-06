@@ -3,6 +3,7 @@ import { z } from 'zod';
 export type AddPersonValues = z.infer<typeof addPersonSchema>;
 
 export const addPersonSchema = z.object({
+	id: z.string().uuid().optional(),
 	fullName: z
 		.string()
 		.min(2, { message: 'First name must be at least 2 characters' })

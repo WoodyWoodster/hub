@@ -60,9 +60,9 @@ export function UpdatesWidget({
 									<TableCell className="text-right">
 										<Badge
 											variant={
-												update.status === 'terminated'
+												update.status === 'Terminated'
 													? 'destructive'
-													: update.status === 'shopping'
+													: update.status === 'Shopping'
 														? 'successful'
 														: 'pending'
 											}
