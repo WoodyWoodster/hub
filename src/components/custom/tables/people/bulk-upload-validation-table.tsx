@@ -20,6 +20,8 @@ import {
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { type Roster, RosterSchema } from '@/lib/schemas/roster/schema';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useQuery } from '@tanstack/react-query';
+import { getExternalRoles } from '@/lib/queries/roles/queries';
 
 interface RowData {
 	data: Partial<Roster>;
@@ -152,7 +154,10 @@ export default function BulkUploadValidationTable({
 		[data, onDataChange],
 	);
 
-	const roleOptions = ['Admin', 'Employee', 'Manager'];
+	const { data: roles } = useQuery({
+		queryKey: ['roles'],
+		queryFn: () => getExternalRoles(),
+	});
 
 	return (
 		<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -260,9 +265,12 @@ export default function BulkUploadValidationTable({
 																					<SelectValue placeholder="Select a role" />
 																				</SelectTrigger>
 																				<SelectContent>
-																					{roleOptions.map((role) => (
-																						<SelectItem key={role} value={role}>
-																							{role}
+																					{roles?.map((role) => (
+																						<SelectItem
+																							key={role.id}
+																							value={role.name}
+																						>
+																							{role.name}
 																						</SelectItem>
 																					))}
 																				</SelectContent>
