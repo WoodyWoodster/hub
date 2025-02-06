@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import BulkUploadValidationTable from '../../tables/people/bulk-upload-validation-table';
 import { submitPeople, uploadCSV } from '@/lib/actions/roster/actions';
 import { Card } from '@/components/ui/card';
+import { useSession } from 'next-auth/react';
 
 interface BulkUploadFormProps {
 	onSuccess: () => void;
@@ -23,6 +24,8 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 	const [validationResults, setValidationResults] = useState<any[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const { toast } = useToast();
+	const session = useSession();
+	const companyId = session?.data?.user?.companyId;
 
 	const onSubmit = async (data: any) => {
 		setIsLoading(true);
@@ -52,7 +55,7 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 		const validPeople = validationResults
 			.filter((r) => !r.errors)
 			.map((r) => r.data);
-		const result = await submitPeople(validPeople);
+		const result = await submitPeople(companyId!, validPeople);
 		toast({
 			title: 'Data Submitted Successfully',
 			description: (
