@@ -330,7 +330,7 @@ export const PeopleTable = () => {
 								</TableBody>
 							</Table>
 						</div>
-						<div className="flex items-center justify-between p-4">
+						<div className="flex flex-col items-center justify-between gap-4 p-4 sm:flex-row">
 							<div className="flex items-center space-x-2">
 								<span className="text-muted-foreground text-sm">Show</span>
 								<select
@@ -357,29 +357,10 @@ export const PeopleTable = () => {
 								>
 									Previous
 								</Button>
-								{table.getPageCount() > 0 &&
-									Array.from(
-										{ length: table.getPageCount() },
-										(_, i) => i + 1,
-									).map((pageNumber) => (
-										<Button
-											key={pageNumber}
-											variant={
-												pageNumber === table.getState().pagination.pageIndex + 1
-													? 'default'
-													: 'outline'
-											}
-											size="sm"
-											onClick={() => table.setPageIndex(pageNumber - 1)}
-											className={
-												pageNumber === table.getState().pagination.pageIndex + 1
-													? 'bg-[#2F855A] hover:bg-[#276749]'
-													: ''
-											}
-										>
-											{pageNumber}
-										</Button>
-									))}
+								<span className="text-sm">
+									Page {table.getState().pagination.pageIndex + 1} of{' '}
+									{table.getPageCount()}
+								</span>
 								<Button
 									variant="outline"
 									size="sm"
