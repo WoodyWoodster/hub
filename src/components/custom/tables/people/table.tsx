@@ -196,7 +196,7 @@ export const PeopleTable = () => {
 	return (
 		<div className="w-full space-y-4">
 			<div>
-				<h2 className="text-2xl font-semibold">People</h2>
+				<h2 className="font-display text-3xl font-semibold">People</h2>
 				<p className="text-muted-foreground py-2 text-sm">
 					Here you can manage your team members. You can adjust their roles,
 					classes and more.
