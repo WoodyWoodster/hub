@@ -18,7 +18,7 @@ export async function uploadCSV(formData: FormData) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function submitPeople(people: any[]) {
+export async function submitPeople(companyId: string, people: any[]) {
 	const created = people.filter((p) => !p.id).length;
 	const updated = people.filter((p) => p.id).length;
 
