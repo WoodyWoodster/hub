@@ -12,6 +12,7 @@ import BulkUploadValidationTable from '../../tables/people/bulk-upload-validatio
 import { submitPeople, uploadCSV } from '@/lib/actions/roster/actions';
 import { Card } from '@/components/ui/card';
 import { useSession } from 'next-auth/react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface BulkUploadFormProps {
 	onSuccess: () => void;
@@ -24,8 +25,10 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 	const [validationResults, setValidationResults] = useState<any[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const { toast } = useToast();
+	const queryClient = useQueryClient();
 	const session = useSession();
 	const companyId = session?.data?.user?.companyId;
+	const personId = session?.data?.user?.personId;
 
 	const onSubmit = async (data: any) => {
 		setIsLoading(true);
@@ -55,17 +58,18 @@ export const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 		const validPeople = validationResults
 			.filter((r) => !r.errors)
 			.map((r) => r.data);
-		const result = await submitPeople(companyId!, validPeople);
+		const result = await submitPeople(companyId!, validPeople, personId!);
 		toast({
 			title: 'Data Submitted Successfully',
 			description: (
 				<div>
 					<p>Created: {result.created}</p>
-					<p>Updated: {result.updated}</p>
+					{/* <p>Updated: {result.updated}</p> */}
 				</div>
 			),
 			variant: 'success',
 		});
+		queryClient.invalidateQueries({ queryKey: ['people'] });
 		onSuccess();
 	};
 
