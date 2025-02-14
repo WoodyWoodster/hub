@@ -2,6 +2,7 @@ import {
 	BookOpen,
 	Bot,
 	Building2,
+	CheckCircle2,
 	DollarSign,
 	LayoutDashboardIcon,
 	Library,
@@ -10,6 +11,10 @@ import {
 	SquareTerminal,
 	UserCircle,
 	Users,
+	Home,
+	Info,
+	HeartPulse,
+	ClipboardPlus,
 } from 'lucide-react';
 
 export const navItems = {
@@ -133,4 +138,104 @@ export const navItems = {
 			icon: Library,
 		},
 	],
+	shopping: [
+		{
+			title: 'Personal Information',
+			icon: CheckCircle2,
+			items: [
+				{ title: 'Basic Info', url: '/shopping/personal-info' },
+				{ title: 'Location', url: '/shopping/personal-info/zip' },
+				{ title: 'Household', url: '/shopping/household' },
+				{ title: 'Household Income', url: '/shopping/household-income' },
+			],
+		},
+		{
+			title: 'Medical Preferences',
+			icon: CheckCircle2,
+			items: [
+				{ title: 'Doctor Preferences', url: '/shopping/preferences/doctor' },
+				{
+					title: 'Hospital Preferences',
+					url: '/shopping/preferences/hospital',
+				},
+				{
+					title: 'Prescription Preferences',
+					url: '/shopping/preferences/prescription',
+				},
+			],
+		},
+		{
+			title: 'Health Plan Selection',
+			icon: CheckCircle2,
+			items: [
+				{
+					title: 'Find a Health Plan',
+					url: '/shopping/plan-selection/plan-finder',
+				},
+				{
+					title: 'Carrier Questions',
+					url: '/shopping/plan-selection/carrier-questions',
+				},
+			],
+		},
+		{
+			title: 'Review',
+			icon: CheckCircle2,
+			items: [
+				{ title: 'Review Details', url: '/shopping/review' },
+				{ title: 'Complete Purchase', url: '/shopping/review/purchase' },
+			],
+		},
+	],
 };
+
+export const shoppingNavItems = [
+	{
+		title: 'Welcome',
+		icon: Home,
+		items: [{ title: 'Get Started', url: '/shopping' }],
+	},
+	{
+		title: 'Personal Information',
+		icon: Info,
+		items: [
+			{ title: 'Basic Information', url: '/shopping/personal-info' },
+			{ title: 'ZIP Code', url: '/shopping/personal-info/zip' },
+			{ title: 'Tobacco Usage', url: '/shopping/personal-info/tobacco-usage' },
+			{
+				title: 'Medicaid Eligibility',
+				url: '/shopping/personal-info/medicaid',
+			},
+			{ title: 'Household', url: '/shopping/personal-info/household' },
+			{
+				title: 'Household Income',
+				url: '/shopping/personal-info/household-income',
+			},
+		],
+	},
+	{
+		title: 'Medical Preferences',
+		icon: HeartPulse,
+		items: [
+			{ title: 'Doctors', url: '/shopping/preferences/doctors' },
+			{ title: 'Hospitals', url: '/shopping/preferences/hospitals' },
+			{ title: 'Prescriptions', url: '/shopping/preferences/prescriptions' },
+		],
+	},
+	{
+		title: 'Health Plan Selection',
+		icon: ClipboardPlus,
+		items: [
+			{ title: 'Available Plans', url: '/shopping/plans' },
+			{ title: 'Plan Comparison', url: '/shopping/plans/compare' },
+		],
+	},
+	{
+		title: 'Review & Submit',
+		icon: CheckCircle2,
+		items: [
+			{ title: 'Review Information', url: '/shopping/review' },
+			{ title: 'Submit Application', url: '/shopping/review/submit' },
+		],
+	},
+];
