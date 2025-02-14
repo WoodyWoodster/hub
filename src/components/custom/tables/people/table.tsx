@@ -40,12 +40,12 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
-import { getPeopleForCompany } from '@/lib/queries/roles/queries';
 import { useSession } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/custom/badge';
 import { AddPersonButton } from '@/components/custom/buttons/people/add-person-button';
+import { getPeopleForCompany } from '@/lib/queries/people/queries';
 
 interface Columns {
 	id: string;
